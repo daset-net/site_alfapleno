@@ -1,0 +1,7 @@
+.git
+.gitignore
+conexao
+*.md
+data
+node_modules
+*.log
