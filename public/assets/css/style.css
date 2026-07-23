@@ -164,12 +164,23 @@ ul { list-style: none; }
   gap: 24px;
 }
 .brand {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.brand img { height: 52px; width: auto; transition: height .3s ease; }
-.header.scrolled .brand img { height: 44px; }
+.brand img {
+  height: 54px;
+  width: auto;
+  transition: height .3s ease, opacity .3s ease;
+}
+.header.scrolled .brand img { height: 46px; }
+
+/* Duas variantes sobrepostas: negativa no topo (hero escuro),
+   colorida quando o header ganha fundo branco ao rolar. */
+.brand__cor { position: absolute; top: 0; left: 0; opacity: 0; }
+.header.scrolled .brand__neg { opacity: 0; }
+.header.scrolled .brand__cor { opacity: 1; }
 
 .nav {
   display: flex;

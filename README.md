@@ -24,7 +24,10 @@ site_edualfa/
 │   ├── assets/
 │   │   ├── css/style.css
 │   │   ├── js/app.js
-│   │   └── img/edualfa.png
+│   │   └── img/
+│   │       ├── edualfa.png            # logo colorida (fundos claros)
+│   │       ├── edualfa-negativo.png   # logo branca (fundos escuros)
+│   │       └── favicon.ico / .png
 │   └── api/
 │       ├── cursos.php      # catálogo em JSON
 │       └── contato.php     # recebe leads → data/leads.csv
@@ -53,6 +56,11 @@ docker run -p 8080:80 edualfa
 
 ## 🎨 Personalização
 
+- **Logos:** os originais ficam em `logo/`. As versões web (fundo transparente,
+  redimensionadas e otimizadas) ficam em `public/assets/img/`. A **negativa** é
+  usada sobre fundos escuros (hero, rodapé e topo do header) e a **colorida**
+  sobre fundos claros (header ao rolar). O header alterna entre as duas
+  automaticamente via CSS.
 - **Cores:** variáveis CSS no topo de `public/assets/css/style.css`.
 - **Cursos:** edite o array em `public/api/cursos.php`.
 - **Contatos (WhatsApp/e-mail):** ajuste em `public/index.php` e `public/api/contato.php`.

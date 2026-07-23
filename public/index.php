@@ -11,7 +11,9 @@ $ano = date('Y');
   <meta name="theme-color" content="#0f2f6b">
   <title>EDUALFA · Educação que transforma vidas</title>
 
-  <link rel="icon" type="image/png" href="assets/img/edualfa.png">
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,7 +27,9 @@ $ano = date('Y');
   <header class="header" :class="{ scrolled: scrolled }">
     <div class="container header__inner">
       <a href="#home" class="brand">
-        <img src="assets/img/edualfa.png" alt="EDUALFA">
+        <!-- negativa sobre o hero escuro, colorida quando o header fica branco -->
+        <img class="brand__neg" src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+        <img class="brand__cor" src="assets/img/edualfa.png" alt="EDUALFA">
       </a>
 
       <nav class="nav" :class="{ open: menuOpen }" @click="menuOpen = false">
@@ -71,7 +75,7 @@ $ano = date('Y');
       <div class="hero__visual">
         <div class="glow"></div>
         <div class="hero__logo-orb">
-          <img src="assets/img/edualfa.png" alt="EDUALFA">
+          <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
         </div>
         <div class="hero__chip hero__chip--1"><i class="ri-award-fill" style="color:#1e56d6"></i> Certificado válido</div>
         <div class="hero__chip hero__chip--2"><i class="ri-time-fill" style="color:#22c9ec"></i> Estude no seu tempo</div>
@@ -290,7 +294,7 @@ $ano = date('Y');
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <img src="assets/img/edualfa.png" alt="EDUALFA">
+          <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
           <p>Educação que transforma vidas. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida e 100% online.</p>
           <div class="footer__social">
             <a href="#" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
