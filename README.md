@@ -52,6 +52,7 @@ site_edualfa/
 │       ├── _conteudo.php   # texto de reserva por modalidade
 │       ├── cursos.php      # catálogo em JSON
 │       ├── imagem.php      # proxy das capas do Directus (não expõe o token)
+│       ├── purgar.php      # limpa o cache sob demanda (chamado pelo AVASET)
 │       └── contato.php     # recebe leads → data/leads.csv
 └── README.md
 ```
@@ -68,7 +69,12 @@ site_edualfa/
    ```
    DIRECTUS_URL=https://cloud.edualfa.com.br
    DIRECTUS_TOKEN=<token estático do Directus>
+   TOKEN_PURGA_SITE=<segredo compartilhado com o AVASET>
    ```
+
+   O `TOKEN_PURGA_SITE` é opcional: sem ele, `api/purgar.php` responde 503 e o
+   cache só vence pelo tempo. Com ele, o AVASET limpa o cache na hora (veja
+   *Cache e resiliência*).
 
    Localmente, sem essas variáveis, o `cursos.php` lê os valores de
    `conexao/conexao_directus_avaset_unico_edualfa.txt`.
@@ -144,6 +150,19 @@ Textos longos podem ir em `valor_extendido`, que tem precedência sobre `valor`.
 O catálogo e as configurações ficam **10 minutos em cache** em disco. Se o
 Directus ficar fora do ar, o site continua servindo a última versão conhecida em
 vez de aparecer vazio.
+
+Edições feitas pelo `/admin` do site limpam o cache na hora. Mudanças feitas no
+**AVASET** (GESET → *Catálogo cursos*, ligar/desligar um curso) chegam pela
+purga: o AVASET chama `POST /api/purgar.php` com o header `X-Token`, e o site
+descarta o cache. Sem o `TOKEN_PURGA_SITE` configurado dos dois lados, a
+mudança continua valendo — só demora até 10 minutos para aparecer.
+
+```bash
+curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://edualfa.com.br/api/purgar.php
+```
+
+> O cache é um arquivo no disco do contêiner: com mais de uma réplica, a purga
+> atinge só a réplica que atendeu a chamada.
 
 ### Imagens
 
