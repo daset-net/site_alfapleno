@@ -206,15 +206,18 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   }
 
   // Uma linha por curso: a versão com a menor parcela (melhor oferta vigente).
+  // Mostra só o que está habilitado no AVASET (ava_catalogo_curso.ativo) e faz
+  // parte do site (tem ficha em site_catalogo_cursos, que também pode ocultar).
   $melhores = [];
   foreach ($precos as $l) {
     $id  = $l['id_curso'] ?? '';
     $cat = strtoupper($l['categoria'] ?? '');
     if ($id === '' || !isset($CATEGORIAS[$cat])) continue;
+    if (($l['ativo'] ?? true) === false) continue;   // curso desativado no AVASET
 
     $s = $site[$id] ?? null;
-    if ($s && !($s['ativo'] ?? true)) continue;                       // desligado no Directus
-    if ($CATEGORIAS[$cat][0] === 'livre' && !($s['destaque'] ?? false)) continue; // livre só em destaque
+    if (!$s) continue;                               // não faz parte do site (sem ficha editorial)
+    if (!($s['ativo'] ?? true)) continue;            // oculto pelo painel do site
 
     $parcela = (float) ($l['valor_parcela'] ?? 0);
     if ($parcela <= 0) continue;
@@ -303,7 +306,7 @@ function catalogo(): array {
 
   $precos    = buscarColecao(COL_PRECOS, ['fields' =>
     'id_curso,categoria,curso,ingresso,desconto,qtd_parcela,valor_parcela,'
-    . 'valor_parcela_normal,valor_total,codigo_unico_especial']);
+    . 'valor_parcela_normal,valor_total,codigo_unico_especial,ativo']);
   $editorial = buscarColecao(COL_CURSOS, ['fields' => '*']);
 
   if ($precos !== null) {

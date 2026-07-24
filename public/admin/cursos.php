@@ -127,20 +127,6 @@ require __DIR__ . '/_topo.php';
               </button>
             </form>
 
-            <?php if ($livre): ?>
-              <form method="post">
-                <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
-                <input type="hidden" name="acao" value="alternar">
-                <input type="hidden" name="campo" value="destaque">
-                <input type="hidden" name="id" value="<?= (int) $c['id'] ?>">
-                <input type="hidden" name="novo" value="<?= empty($c['destaque']) ? '1' : '0' ?>">
-                <button type="submit" class="link-acao <?= !empty($c['destaque']) ? 'link-acao--on' : '' ?>">
-                  <i class="ri-star-<?= empty($c['destaque']) ? 'line' : 'fill' ?>"></i>
-                  <?= empty($c['destaque']) ? 'Pôr na vitrine' : 'Na vitrine' ?>
-                </button>
-              </form>
-            <?php endif; ?>
-
             <a class="link-acao" href="curso.php?id=<?= (int) $c['id'] ?>"><i class="ri-edit-line"></i> Editar textos</a>
           </div>
         </div>
