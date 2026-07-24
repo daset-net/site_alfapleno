@@ -57,32 +57,50 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
   </header>
 
   <!-- ===================== HERO ===================== -->
+  <?php $heroImg = urlImagem(config('hero_imagem')); ?>
   <section class="hero" id="home">
     <div class="container hero__grid">
       <div class="hero__content">
         <span class="hero__badge"><span class="dot"></span> <?= e(config('hero_badge', 'Matrículas abertas · Turmas ' . $ano)) ?></span>
-        <h1><?= e(config('hero_titulo', 'Sua nova jornada de conhecimento começa aqui')) ?></h1>
+        <h1>
+          <?= e(config('hero_titulo', 'Seu futuro começa com uma')) ?>
+          <?php if (config('hero_destaque')): ?><span class="hl"><?= e(config('hero_destaque')) ?></span><?php endif; ?>
+        </h1>
         <p class="lead">
-          <?= e(config('hero_subtitulo', 'Conclua seus estudos, conquiste uma profissão e vá além. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida — 100% online e no seu ritmo.')) ?>
+          <?= e(config('hero_subtitulo', 'EJA, Cursos Técnicos e Cursos Livres reconhecidos. Estude 100% online, no seu tempo e de onde estiver.')) ?>
         </p>
         <div class="hero__actions">
-          <a href="#cursos" class="btn btn-light">Explorar cursos <i class="ri-graduation-cap-line"></i></a>
-          <a href="#contato" class="btn btn-ghost-light">Falar com um consultor</a>
+          <a href="#contato" class="btn btn-primary">Matricule-se agora <i class="ri-arrow-right-line"></i></a>
+          <a href="#cursos" class="btn btn-ghost-light">Conheça os cursos</a>
         </div>
-        <div class="hero__stats">
-          <div class="stat"><strong><?= e(config('stat_alunos', '+12 mil')) ?></strong><span>Alunos matriculados</span></div>
-          <div class="stat"><strong><?= e(config('stat_cursos', '+80')) ?></strong><span>Cursos disponíveis</span></div>
-          <div class="stat"><strong><?= e(config('stat_satisfacao', '98%')) ?></strong><span>Satisfação</span></div>
-        </div>
+        <ul class="hero__feats">
+          <li><i class="ri-medal-line"></i><div><strong>Certificado válido</strong><span>em todo Brasil</span></div></li>
+          <li><i class="ri-user-star-line"></i><div><strong>Professores</strong><span>especializados</span></div></li>
+          <li><i class="ri-time-line"></i><div><strong>Estude no seu</strong><span>tempo</span></div></li>
+          <li><i class="ri-service-line"></i><div><strong>Suporte</strong><span>humanizado</span></div></li>
+        </ul>
       </div>
 
       <div class="hero__visual">
         <div class="glow"></div>
-        <div class="hero__logo-orb">
-          <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+        <div class="hero__media<?= $heroImg === '' ? ' hero__media--vazio' : '' ?>">
+          <?php if ($heroImg !== ''): ?>
+            <img src="<?= e($heroImg) ?>&w=1200" alt="Estude na EDUALFA">
+          <?php else: ?>
+            <img class="hero__media-logo" src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+          <?php endif; ?>
         </div>
-        <div class="hero__chip hero__chip--1"><i class="ri-award-fill" style="color:#1e56d6"></i> Certificado válido</div>
-        <div class="hero__chip hero__chip--2"><i class="ri-time-fill" style="color:#22c9ec"></i> Estude no seu tempo</div>
+        <div class="hero__chip hero__chip--1"><i class="ri-award-fill"></i> Certificado reconhecido</div>
+        <div class="hero__chip hero__chip--2"><i class="ri-play-circle-fill"></i> Aulas 100% online</div>
+        <div class="hero__chip hero__chip--3"><i class="ri-wifi-line"></i> Estude de onde estiver</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="hero__stats">
+        <div class="stat"><i class="ri-graduation-cap-line"></i><div><strong><?= e(config('stat_alunos', '12.000+')) ?></strong><span>Alunos matriculados em todo Brasil</span></div></div>
+        <div class="stat"><i class="ri-book-open-line"></i><div><strong><?= e(config('stat_cursos', '80+')) ?></strong><span>Cursos disponíveis para você</span></div></div>
+        <div class="stat"><i class="ri-star-line"></i><div><strong><?= e(config('stat_satisfacao', '98%')) ?></strong><span>Taxa de satisfação dos alunos</span></div></div>
       </div>
     </div>
 
@@ -92,6 +110,15 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
       </svg>
     </div>
   </section>
+
+  <!-- ===================== FRASE ===================== -->
+  <?php if (config('frase_transformacao')): ?>
+  <section class="frase-band">
+    <div class="container">
+      <p><?= e(config('frase_transformacao')) ?></p>
+    </div>
+  </section>
+  <?php endif; ?>
 
   <!-- ===================== CATEGORIAS ===================== -->
   <section class="section" id="categorias">

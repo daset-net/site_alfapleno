@@ -161,9 +161,10 @@ acesso aqui na hora.
   inativo ou desativado é barrado.
 - **Verificação de senha:** bcrypt → texto puro (legado) → MD5, na mesma ordem do
   `api/login.php` do AVASET, para nenhum gestor existente ficar de fora.
-- **O que dá para fazer:** trocar/remover a capa dos cursos, mostrar ou esconder
-  um curso, pôr um curso livre na vitrine, editar todos os textos da página do
-  curso e as configurações gerais do site.
+- **O que dá para fazer:** trocar a **imagem do topo (hero)** da home,
+  trocar/remover a capa dos cursos, mostrar ou esconder um curso, pôr um curso
+  livre na vitrine, editar todos os textos da página do curso e as configurações
+  gerais do site (topo, contatos, redes, números e SEO).
 - **O que NÃO dá para fazer:** mexer em preço, parcelas ou desconto — isso é do
   catálogo do AVASET, de propósito.
 

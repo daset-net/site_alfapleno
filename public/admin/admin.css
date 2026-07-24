@@ -115,6 +115,29 @@
   background: linear-gradient(to top, var(--bg-soft) 70%, transparent);
 }
 
+/* --- Editor da imagem do hero -------------------------------------------- */
+.hero-editor {
+  display: grid; grid-template-columns: 300px 1fr; gap: 24px;
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 28px;
+}
+.hero-editor__previa {
+  aspect-ratio: 4 / 3.2; border-radius: 12px; overflow: hidden;
+  background: var(--grad-hero);
+}
+.hero-editor__previa img { width: 100%; height: 100%; object-fit: cover; }
+.hero-editor__previa--vazio {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  color: rgba(255,255,255,.85); font-size: 14px; padding: 16px;
+}
+.hero-editor__previa--vazio i { display: block; font-size: 26px; margin-bottom: 6px; }
+.hero-editor__acoes h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.hero-editor__acoes p { font-size: 14px; color: var(--muted); margin-bottom: 18px; max-width: 460px; }
+.hero-editor__botoes { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.hero-editor__botoes .btn { cursor: pointer; }
+
 /* --- Lista de cursos ------------------------------------------------------ */
 .grupo-titulo {
   display: flex; align-items: center; gap: 10px;
@@ -184,4 +207,5 @@
   .admin-usuario { margin-left: auto; }
   .campos { grid-template-columns: 1fr; padding: 20px; }
   .cursos-grade { grid-template-columns: 1fr; }
+  .hero-editor { grid-template-columns: 1fr; }
 }

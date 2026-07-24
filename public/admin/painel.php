@@ -8,10 +8,37 @@ exigirLogin();
 $aviso = '';
 $tipo  = '';
 
+// id da chave que guarda a imagem do hero (para o uploader e para pular no grid de texto)
+function idConfig(string $chave): ?int {
+  foreach (buscarColecao(COL_CONFIG, ['fields' => 'id,chave']) ?? [] as $r) {
+    if (($r['chave'] ?? '') === $chave) return (int) $r['id'];
+  }
+  return null;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!csrfValido($_POST['csrf'] ?? null)) {
     $aviso = 'Sessão inválida. Recarregue a página e tente de novo.';
     $tipo  = 'erro';
+  } elseif (($_POST['acao'] ?? '') === 'hero_imagem') {
+    // Envio da imagem principal do topo da home.
+    $idHero = idConfig('hero_imagem');
+    [$ok, $r] = enviarImagem($_FILES['imagem'] ?? []);
+    if ($ok && $idHero) {
+      [$ok2, $msg2] = salvarItem(COL_CONFIG, $idHero, ['valor' => $r, 'valor_extendido' => '']);
+      $aviso = $ok2 ? 'Imagem do topo atualizada! Já está no ar.' : $msg2;
+      $tipo  = $ok2 ? 'ok' : 'erro';
+    } else {
+      $aviso = $ok ? 'Chave hero_imagem não encontrada.' : $r;
+      $tipo  = 'erro';
+    }
+    limparCache();
+  } elseif (($_POST['acao'] ?? '') === 'remover_hero') {
+    $idHero = idConfig('hero_imagem');
+    if ($idHero) salvarItem(COL_CONFIG, $idHero, ['valor' => '', 'valor_extendido' => '']);
+    limparCache();
+    $aviso = 'Imagem do topo removida. Voltou a mostrar a logo.';
+    $tipo  = 'ok';
   } else {
     $valores = $_POST['valor'] ?? [];
     $erros = [];
@@ -40,19 +67,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $configs = configuracoesDoPainel();
+
+// Separa a imagem do hero: ela tem uploader próprio, não vai no grid de texto.
+$heroValor = '';
+foreach ($configs as $c) {
+  if (($c['chave'] ?? '') === 'hero_imagem') { $heroValor = (string) ($c['valor'] ?? ''); }
+}
+$heroUrl = preg_match('/^[0-9a-f-]{36}$/i', $heroValor) ? '../api/imagem.php?id=' . $heroValor . '&w=600' : '';
+
 $titulo  = 'Configurações do site';
 $abaAtiva = 'painel';
 require __DIR__ . '/_topo.php';
 ?>
 
+<?php if ($aviso): ?>
+  <div class="aviso aviso--<?= e($tipo) ?>">
+    <i class="ri-<?= $tipo === 'ok' ? 'check' : 'error-warning' ?>-line"></i> <?= e($aviso) ?>
+  </div>
+<?php endif; ?>
+
+<!-- Imagem principal do topo -->
+<section class="hero-editor">
+  <div class="hero-editor__previa <?= $heroUrl === '' ? 'hero-editor__previa--vazio' : '' ?>">
+    <?php if ($heroUrl !== ''): ?>
+      <img src="<?= e($heroUrl) ?>" alt="Imagem do topo">
+    <?php else: ?>
+      <span><i class="ri-image-line"></i> Sem imagem — o topo mostra a logo</span>
+    <?php endif; ?>
+  </div>
+  <div class="hero-editor__acoes">
+    <h2>Imagem do topo (hero)</h2>
+    <p>A imagem grande que aparece à direita no topo da home. Ideal na horizontal,
+       a partir de 1200&times;1000px. Sem imagem, o topo mostra a logo da EDUALFA.</p>
+    <div class="hero-editor__botoes">
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
+        <input type="hidden" name="acao" value="hero_imagem">
+        <label class="btn btn-primary">
+          <i class="ri-upload-2-line"></i> <?= $heroUrl ? 'Trocar imagem' : 'Enviar imagem' ?>
+          <input type="file" name="imagem" accept="image/*" onchange="this.form.submit()" hidden>
+        </label>
+      </form>
+      <?php if ($heroUrl !== ''): ?>
+        <form method="post" onsubmit="return confirm('Remover a imagem do topo?')">
+          <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
+          <input type="hidden" name="acao" value="remover_hero">
+          <button type="submit" class="link-acao"><i class="ri-delete-bin-line"></i> Remover</button>
+        </form>
+      <?php endif; ?>
+    </div>
+  </div>
+</section>
+
 <form method="post" class="painel-form">
   <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
-
-  <?php if ($aviso): ?>
-    <div class="aviso aviso--<?= e($tipo) ?>">
-      <i class="ri-<?= $tipo === 'ok' ? 'check' : 'error-warning' ?>-line"></i> <?= e($aviso) ?>
-    </div>
-  <?php endif; ?>
 
   <p class="painel-intro">
     Estes campos aparecem no site na hora em que você salva. Deixe em branco os links
@@ -61,6 +129,7 @@ require __DIR__ . '/_topo.php';
 
   <div class="campos">
     <?php foreach ($configs as $c):
+      if (($c['chave'] ?? '') === 'hero_imagem') continue; // tem uploader próprio acima
       $valor = trim((string) ($c['valor_extendido'] ?? '')) !== ''
         ? $c['valor_extendido'] : ($c['valor'] ?? '');
       $longo = mb_strlen((string) $valor) > 80 || in_array($c['chave'], ['hero_subtitulo', 'seo_descricao'], true);
