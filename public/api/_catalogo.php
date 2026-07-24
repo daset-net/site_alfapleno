@@ -71,24 +71,40 @@ $CATEGORIAS = [
 
 // ---------------------------------------------------------------- config
 function conexao(string $chave, string $padrao = ''): string {
-  $env = getenv($chave);
-  if ($env !== false && $env !== '') return $env;
-
-  static $arquivo = null;
-  if ($arquivo === null) {
-    $arquivo = [];
-    $caminho = __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt';
-    foreach (@file($caminho, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $linha) {
-      if (strpos($linha, '=') === false) continue;
-      [$k, $v] = explode('=', $linha, 2);
-      $arquivo[trim($k)] = trim($v);
-    }
-  }
+  // Nomes equivalentes: o padrão dos outros sistemas EDUALFA (usado no EasyPanel)
+  // e os nomes curtos deste projeto. Tenta ambos, em variável de ambiente e arquivo.
   $mapa = [
     'DIRECTUS_URL'   => 'API_DIRECTUS_CONFIGURACOES',
     'DIRECTUS_TOKEN' => 'TOKEN_DIRECTUS_CONFIGURACOES',
   ];
-  return $arquivo[$mapa[$chave] ?? $chave] ?? $padrao;
+  $nomes = array_unique([$chave, $mapa[$chave] ?? $chave]);
+
+  foreach ($nomes as $nome) {
+    $env = getenv($nome);
+    if ($env !== false && $env !== '') return $env;
+  }
+
+  static $arquivo = null;
+  if ($arquivo === null) {
+    $arquivo = [];
+    foreach ([
+      __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt', // dev local
+      __DIR__ . '/../../.env',                                              // EasyPanel (Create env file)
+      __DIR__ . '/../.env',
+    ] as $caminho) {
+      foreach (@file($caminho, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $linha) {
+        $linha = trim($linha);
+        if ($linha === '' || $linha[0] === '#' || strpos($linha, '=') === false) continue;
+        [$k, $v] = explode('=', $linha, 2);
+        $arquivo[trim($k)] = trim($v, " \t\"'");
+      }
+    }
+  }
+
+  foreach ($nomes as $nome) {
+    if (isset($arquivo[$nome]) && $arquivo[$nome] !== '') return $arquivo[$nome];
+  }
+  return $padrao;
 }
 
 // ---------------------------------------------------------------- helpers
