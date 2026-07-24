@@ -63,13 +63,22 @@ function enviarImagem(array $arquivo): array {
   $nome = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) ($arquivo['name'] ?? 'capa'));
   $nome = pathinfo($nome, PATHINFO_FILENAME) . '.' . $permitidos[$tipo];
 
+  // Se DIRECTUS_STORAGE estiver definido (ex.: "site"), o Directus grava o
+  // arquivo nessa localização — usada para separar as imagens do site numa
+  // pasta própria no R2. Vazio = localização padrão do Directus (nada muda).
+  // O campo "storage" precisa vir ANTES do "file" no multipart.
+  $post = [];
+  $storage = conexao('DIRECTUS_STORAGE');
+  if ($storage !== '') $post['storage'] = $storage;
+  $post['file'] = new CURLFile($arquivo['tmp_name'], $tipo, $nome);
+
   $ch = curl_init($base . '/files');
   curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
     CURLOPT_TIMEOUT        => 60,
     CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $token],
-    CURLOPT_POSTFIELDS     => ['file' => new CURLFile($arquivo['tmp_name'], $tipo, $nome)],
+    CURLOPT_POSTFIELDS     => $post,
   ]);
   $corpo  = curl_exec($ch);
   $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
