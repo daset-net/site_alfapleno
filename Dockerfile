@@ -25,8 +25,16 @@ RUN mkdir -p /var/www/vhosts/localhost/data \
     && chown -R lsadm:lsadm /var/www/vhosts/localhost \
     && chmod -R 775 /var/www/vhosts/localhost/data
 
+# ---- Ponte de configuração -------------------------------------------------
+# Grava as variáveis de ambiente (injetadas pelo EasyPanel) num .env que o PHP
+# lê, contornando o fato de o LiteSpeed não repassar env para o LSPHP.
+COPY docker/entrypoint.sh /usr/local/bin/edualfa-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/edualfa-entrypoint.sh \
+    && chmod +x /usr/local/bin/edualfa-entrypoint.sh
+
 # ---- Rede ------------------------------------------------------------------
 # 80  -> HTTP do site      | 7080 -> painel admin do OpenLiteSpeed
 EXPOSE 80 7080
 
-# O ENTRYPOINT/CMD já vêm da imagem oficial (inicia o OpenLiteSpeed em foreground)
+# Nosso entrypoint prepara o .env e entrega o controle ao início oficial da imagem.
+ENTRYPOINT ["/usr/local/bin/edualfa-entrypoint.sh"]
