@@ -102,9 +102,15 @@ Três coleções, com papéis bem separados:
 
 | Coleção | Papel |
 |---|---|
-| `ava_catalogo_curso` | **Preço.** Fonte única de valores, parcelas e descontos. Não é copiado para lugar nenhum. |
-| `site_catalogo_cursos` | **Camada editorial do site.** Imagem de capa, textos, slug, ordem e quais cursos aparecem. |
+| `ava_catalogo_curso` | **Preço + quais cursos existem.** Fonte única de valores, parcelas e descontos. O campo `ativo` liga/desliga o curso (controlado no painel do AVASET). |
+| `site_catalogo_cursos` | **Camada editorial (opcional).** Imagem de capa, textos, slug e ordem de cada curso. |
 | `site_configuracoes` | **Configurações gerais.** Contato, redes sociais, textos da home, números e SEO. |
+
+> **Quais cursos aparecem no site:** todos os do `ava_catalogo_curso`, **menos os desativados**
+> (`ativo = false`). O interruptor fica no painel do AVASET (Catálogo de Cursos) e vale ao mesmo
+> tempo para o site e para a matrícula. A ficha em `site_catalogo_cursos` é **opcional**: quando
+> existe, dá capa e textos próprios; quando não existe, o curso ainda aparece usando o nome do
+> catálogo e um texto padrão da modalidade.
 
 ### `site_catalogo_cursos` — uma linha por curso
 
@@ -112,8 +118,7 @@ Ligada ao preço pelo campo `id_curso` (ex.: `CT005`). **Não guarda valores** �
 preço é buscado no `ava_catalogo_curso` na hora da leitura, então alterar um
 desconto lá se reflete no site sozinho, sem risco de anunciar preço errado.
 
-- `ativo` — desmarque para tirar o curso do site.
-- `destaque` — cursos **livres** só aparecem na vitrine se marcados (EJA e técnicos entram todos).
+- `ativo` — oculta o curso **só do site**, sem tirá-lo da matrícula (para desligar dos dois, use o interruptor no AVASET).
 - `ordem` — posição dentro da modalidade.
 - `imagem_capa` — capa do card e da página. Sem imagem, o site usa o `emoji`.
 - `nome_exibicao`, `descricao_card`, `duracao`, `modalidade`, `slug`.

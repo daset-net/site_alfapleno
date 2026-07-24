@@ -200,24 +200,29 @@ function urlImagem(?string $uuid): string {
 function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   extract($ctx); // $EMOJIS, $CATEGORIAS
 
+  // Categoria do curso → [slug, rótulo]. Categoria desconhecida cai em "Curso Livre",
+  // para que nenhum curso do catálogo fique de fora do site.
+  $categoriaDe = function (?string $cat) use ($CATEGORIAS): array {
+    return $CATEGORIAS[strtoupper((string) $cat)] ?? ['livre', 'Curso Livre'];
+  };
+
   $site = [];
   foreach ($editorial as $e) {
     if (!empty($e['id_curso'])) $site[$e['id_curso']] = $e;
   }
 
   // Uma linha por curso: a versão com a menor parcela (melhor oferta vigente).
-  // Mostra só o que está habilitado no AVASET (ava_catalogo_curso.ativo) e faz
-  // parte do site (tem ficha em site_catalogo_cursos, que também pode ocultar).
+  // Regra: todos os cursos do catálogo aparecem no site, MENOS os desativados no
+  // AVASET (ava_catalogo_curso.ativo=false). A ficha em site_catalogo_cursos é
+  // opcional — só enriquece (capa/textos) e pode ocultar localmente pelo painel.
   $melhores = [];
   foreach ($precos as $l) {
-    $id  = $l['id_curso'] ?? '';
-    $cat = strtoupper($l['categoria'] ?? '');
-    if ($id === '' || !isset($CATEGORIAS[$cat])) continue;
+    $id = $l['id_curso'] ?? '';
+    if ($id === '') continue;
     if (($l['ativo'] ?? true) === false) continue;   // curso desativado no AVASET
 
     $s = $site[$id] ?? null;
-    if (!$s) continue;                               // não faz parte do site (sem ficha editorial)
-    if (!($s['ativo'] ?? true)) continue;            // oculto pelo painel do site
+    if ($s && !($s['ativo'] ?? true)) continue;      // oculto pelo painel do site
 
     $parcela = (float) ($l['valor_parcela'] ?? 0);
     if ($parcela <= 0) continue;
@@ -227,13 +232,13 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   }
 
   $peso = ['eja' => 1, 'tecnico' => 2, 'livre' => 3];
-  uasort($melhores, function ($a, $b) use ($CATEGORIAS, $peso, $site) {
-    $ca = $peso[$CATEGORIAS[strtoupper($a['categoria'])][0]];
-    $cb = $peso[$CATEGORIAS[strtoupper($b['categoria'])][0]];
+  uasort($melhores, function ($a, $b) use ($categoriaDe, $peso, $site) {
+    $ca = $peso[$categoriaDe($a['categoria'] ?? '')[0]];
+    $cb = $peso[$categoriaDe($b['categoria'] ?? '')[0]];
     if ($ca !== $cb) return $ca <=> $cb;
     $oa = (int) ($site[$a['id_curso']]['ordem'] ?? 999);
     $ob = (int) ($site[$b['id_curso']]['ordem'] ?? 999);
-    return $oa <=> $ob ?: strcmp($a['id_curso'], $b['id_curso']);
+    return $oa <=> $ob ?: strcmp((string) $a['id_curso'], (string) $b['id_curso']);
   });
 
   $cores  = [COR_AZUL, COR_CIANO, COR_NAVY];
@@ -241,7 +246,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   $i = 0;
 
   foreach ($melhores as $id => $l) {
-    [$slug, $rotulo] = $CATEGORIAS[strtoupper($l['categoria'])];
+    [$slug, $rotulo] = $categoriaDe($l['categoria'] ?? '');
     $s        = $site[$id] ?? [];
     $parcelas = (int) ($l['qtd_parcela'] ?? 0);
     $nome     = trim($s['nome_exibicao'] ?? '') !== '' ? $s['nome_exibicao'] : nomeCurso($l['curso'] ?? '');
