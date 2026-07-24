@@ -83,31 +83,6 @@ $CONTEUDO = [
   ],
 
   // -------------------------------------------------------------- TÉCNICOS
-  'CT002' => [
-    'chamada'  => 'Vire o profissional que a obra não começa sem chamar',
-    'promessa' => 'Nenhum loteamento, estrada ou edifício sai do papel sem medição. O técnico em agrimensura é quem entrega esses números — e por isso é disputado por construtoras, prefeituras e escritórios de topografia mesmo quando o mercado esfria.',
-    'aprender' => [
-      'Topografia: nivelamento, poligonais e levantamentos planialtimétricos',
-      'Operação de estação total, nível óptico e receptores GNSS/GPS geodésico',
-      'Georreferenciamento de imóveis rurais e as normas do INCRA',
-      'Desenho técnico e representação de terrenos em AutoCAD',
-      'Cálculo de áreas, volumes e memoriais descritivos',
-      'Legislação, cartografia e sistemas de coordenadas',
-    ],
-    'publico' => [
-      'Quem já trabalha em obra e quer sair do braçal para o técnico',
-      'Quem gosta de campo, cálculo e tecnologia',
-      'Quem quer uma profissão registrada e bem paga sem cursar engenharia',
-    ],
-    'saidas' => [
-      'Técnico em agrimensura em construtoras e escritórios de topografia',
-      'Auxiliar de georreferenciamento rural',
-      'Prestador de serviço autônomo para regularização de terrenos',
-      'Concursos de prefeituras e órgãos de terras',
-    ],
-    'mercado' => 'Regularização fundiária, obras de infraestrutura e o agronegócio mantêm a demanda por medição em alta o ano inteiro — e são poucos os técnicos formados para atender.',
-  ],
-
   'CT003' => [
     'chamada'  => 'Entre para a saúde por uma porta que emprega o ano todo',
     'promessa' => 'Todo consultório odontológico precisa de alguém que domine biossegurança, instrumental e atendimento ao paciente. O técnico em saúde bucal é essa pessoa — e é uma das funções da saúde com contratação mais constante, dentro e fora do SUS.',

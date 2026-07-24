@@ -23,10 +23,9 @@ $LIVRES_DESTAQUE = ['CL001', 'CL003', 'CL006', 'CL011', 'CL017'];
 // Duração e descrição não existem no Directus — ficam curadas aqui.
 $DURACAO = [
   'CE001' => '12 meses', 'CE002' => '8 meses', 'CE003' => '6 meses',
-  'CT002' => '18 meses', 'CT003' => '18 meses', 'CT004' => '18 meses',
-  'CT005' => '18 meses', 'CT006' => '18 meses', 'CT007' => '18 meses',
-  'CT008' => '18 meses', 'CT009' => '18 meses', 'CT010' => '18 meses',
-  'CT011' => '18 meses',
+  'CT003' => '18 meses', 'CT004' => '18 meses', 'CT005' => '18 meses',
+  'CT006' => '18 meses', 'CT007' => '18 meses', 'CT008' => '18 meses',
+  'CT009' => '18 meses', 'CT010' => '18 meses', 'CT011' => '18 meses',
   'CL001' => '80 horas', 'CL003' => '100 horas', 'CL006' => '120 horas',
   'CL011' => '120 horas', 'CL017' => '120 horas',
 ];
@@ -35,7 +34,14 @@ $DESCRICAO = [
   'CE001' => 'Conclua o ensino fundamental e o médio de uma só vez, com certificação reconhecida e válida em todo o país.',
   'CE002' => 'Termine o ensino médio no seu ritmo e conquiste o certificado para faculdade, concursos e trabalho.',
   'CE003' => 'Só falta o 3º ano? Conclua apenas a etapa que ficou pendente e receba seu certificado.',
-  'CT002' => 'Atue com topografia, georreferenciamento e levantamentos em obras e projetos de engenharia.',
+  // Combos: ensino médio + formação técnica no mesmo curso, com dois certificados.
+  'CE002CT004' => 'Conclua o ensino médio e saia técnico em eletromecânica, pronto para a manutenção industrial.',
+  'CE002CT005' => 'Conclua o ensino médio e saia técnico em administração, a formação que serve a qualquer empresa.',
+  'CE002CT006' => 'Conclua o ensino médio e saia técnico em segurança do trabalho, profissão exigida por lei nas empresas.',
+  'CE002CT007' => 'Conclua o ensino médio e saia técnico em eletrotécnica, com espaço na energia solar e nas instalações.',
+  'CE002CT008' => 'Conclua o ensino médio e saia técnico em meio ambiente, área que só cresce nas empresas.',
+  'CE002CT009' => 'Conclua o ensino médio e saia técnico em edificações, apto a acompanhar obras e ler projetos.',
+  'CE002CT010' => 'Conclua o ensino médio e saia técnico em estética, pronto para atender ou abrir o próprio espaço.',
   'CT003' => 'Trabalhe ao lado do cirurgião-dentista em clínicas e na saúde pública, com formação técnica completa.',
   'CT004' => 'Una mecânica e eletricidade industrial para manter e operar máquinas em qualquer indústria.',
   'CT005' => 'Domine gestão, finanças e rotinas administrativas exigidas pelo mercado de trabalho.',
@@ -56,7 +62,7 @@ $DESCRICAO = [
 $EMOJIS = [
   'enfermagem' => '🩺', 'saúde bucal' => '🦷', 'estética' => '💅',
   'segurança' => '🦺', 'eletrot' => '⚡', 'eletromec' => '⚙️',
-  'meio ambiente' => '🌱', 'edificações' => '🏗️', 'agrimensura' => '📐',
+  'meio ambiente' => '🌱', 'edificações' => '🏗️',
   'administra' => '💼', 'contábil' => '🧾', 'informática' => '💻',
   'design' => '🎨', 'fundamental e médio' => '📚', '3º ano' => '📝',
   'médio' => '🎓',
