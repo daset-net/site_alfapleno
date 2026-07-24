@@ -79,32 +79,44 @@ function conexao(string $chave, string $padrao = ''): string {
   ];
   $nomes = array_unique([$chave, $mapa[$chave] ?? $chave]);
 
+  // Sob LiteSpeed/LSPHP a variável pode chegar por getenv, $_ENV ou $_SERVER.
   foreach ($nomes as $nome) {
-    $env = getenv($nome);
-    if ($env !== false && $env !== '') return $env;
-  }
-
-  static $arquivo = null;
-  if ($arquivo === null) {
-    $arquivo = [];
-    foreach ([
-      __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt', // dev local
-      __DIR__ . '/../../.env',                                              // EasyPanel (Create env file)
-      __DIR__ . '/../.env',
-    ] as $caminho) {
-      foreach (@file($caminho, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $linha) {
-        $linha = trim($linha);
-        if ($linha === '' || $linha[0] === '#' || strpos($linha, '=') === false) continue;
-        [$k, $v] = explode('=', $linha, 2);
-        $arquivo[trim($k)] = trim($v, " \t\"'");
-      }
+    foreach ([getenv($nome), $_ENV[$nome] ?? false, $_SERVER[$nome] ?? false] as $valor) {
+      if ($valor !== false && $valor !== '') return (string) $valor;
     }
   }
 
   foreach ($nomes as $nome) {
-    if (isset($arquivo[$nome]) && $arquivo[$nome] !== '') return $arquivo[$nome];
+    $valor = arquivosConexao()[$nome] ?? '';
+    if ($valor !== '') return $valor;
   }
   return $padrao;
+}
+
+/** Lê as credenciais de arquivos (dev local e .env do EasyPanel), com cache. */
+function arquivosConexao(): array {
+  static $dados = null;
+  if ($dados !== null) return $dados;
+
+  $dados = [];
+  foreach ([
+    __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt', // dev local
+    __DIR__ . '/../../.env',
+    __DIR__ . '/../.env',
+    __DIR__ . '/.env',
+    getcwd() . '/.env',
+    '/.env',                                                              // EasyPanel: "Create env file" com path ".env"
+    '/app/.env',
+  ] as $caminho) {
+    foreach (@file($caminho, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $linha) {
+      $linha = trim($linha);
+      if ($linha === '' || $linha[0] === '#' || strpos($linha, '=') === false) continue;
+      [$k, $v] = explode('=', $linha, 2);
+      $k = trim($k);
+      if (!isset($dados[$k])) $dados[$k] = trim($v, " \t\"'");
+    }
+  }
+  return $dados;
 }
 
 // ---------------------------------------------------------------- helpers
