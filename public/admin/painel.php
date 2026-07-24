@@ -97,10 +97,10 @@ require __DIR__ . '/_topo.php';
   </div>
   <div class="hero-editor__acoes">
     <h2>Imagem do topo (hero)</h2>
-    <p>Aparece à direita no topo da home. Use uma imagem <strong>quadrada</strong>
-       (ex.: 1200&times;1200px) e, de preferência, com <strong>fundo na cor do topo</strong>
-       (azul-marinho) ou transparente — assim ela se integra ao fundo. As bordas já
-       são suavizadas automaticamente. Sem imagem, o topo mostra a logo da EDUALFA.</p>
+    <p>Aparece à direita no topo da home. O ideal é um <strong>PNG com fundo
+       transparente</strong> (um recorte, como a pessoa no notebook): ela flutua
+       sobre o azul do topo e se integra sozinha, sem cortes. Sem imagem, o topo
+       mostra a logo da EDUALFA.</p>
     <div class="hero-editor__botoes">
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
