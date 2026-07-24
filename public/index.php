@@ -147,9 +147,11 @@ $ano = date('Y');
         <div v-else-if="cursosFiltrados.length === 0" class="empty">Nenhum curso encontrado nesta modalidade.</div>
 
         <article class="course-card" v-for="c in cursosFiltrados" :key="c.id">
+          <a class="course-card__link" :href="'curso.php?id=' + c.id">
           <div class="course-card__media" :style="{ background: c.cor }">
             <span class="emoji">{{ c.emoji }}</span>
             <span class="course-card__badge">{{ c.categoriaLabel }}</span>
+            <span v-if="c.desconto" class="course-card__off">-{{ c.desconto }}%</span>
           </div>
           <div class="course-card__body">
             <h4>{{ c.nome }}</h4>
@@ -160,12 +162,19 @@ $ano = date('Y');
             </div>
             <div class="course-card__foot">
               <div class="course-card__price">
-                <small>a partir de</small>
-                <strong>R$ {{ c.preco }}<span>/mês</span></strong>
+                <small>
+                  <s v-if="c.precoDe">R$ {{ c.precoDe }}</s>
+                  <template v-else>a partir de</template>
+                </small>
+                <strong>
+                  <em v-if="c.parcelas">{{ c.parcelas }}x</em>
+                  R$ {{ c.preco }}<span>/mês</span>
+                </strong>
               </div>
-              <a href="#contato" class="btn btn-primary" style="padding:10px 18px;font-size:14px">Quero <i class="ri-arrow-right-line"></i></a>
+              <span class="btn btn-primary" style="padding:10px 18px;font-size:14px">Quero <i class="ri-arrow-right-line"></i></span>
             </div>
           </div>
+          </a>
         </article>
       </div>
     </div>
