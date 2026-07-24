@@ -1,15 +1,21 @@
 <?php
 // index.php — página principal do site EDUALFA
+// Textos e contatos vêm da coleção site_configuracoes (Directus).
+require __DIR__ . '/api/_catalogo.php';
+
 $ano = date('Y');
+$whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000');
+
+function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="EDUALFA — Educação que transforma. Supletivo EJA, Cursos Técnicos e Cursos Livres com certificação reconhecida, 100% online e no seu ritmo.">
+  <meta name="description" content="<?= e(config('seo_descricao', 'EDUALFA — Educação que transforma. Supletivo EJA, Cursos Técnicos e Cursos Livres com certificação reconhecida, 100% online e no seu ritmo.')) ?>">
   <meta name="theme-color" content="#0f2f6b">
-  <title>EDUALFA · Educação que transforma vidas</title>
+  <title><?= e(config('seo_titulo', 'EDUALFA · Educação que transforma vidas')) ?></title>
 
   <link rel="icon" href="assets/img/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -54,21 +60,19 @@ $ano = date('Y');
   <section class="hero" id="home">
     <div class="container hero__grid">
       <div class="hero__content">
-        <span class="hero__badge"><span class="dot"></span> Matrículas abertas · Turmas 2026</span>
-        <h1>Sua nova jornada de <span class="hl">conhecimento</span> começa aqui</h1>
+        <span class="hero__badge"><span class="dot"></span> <?= e(config('hero_badge', 'Matrículas abertas · Turmas ' . $ano)) ?></span>
+        <h1><?= e(config('hero_titulo', 'Sua nova jornada de conhecimento começa aqui')) ?></h1>
         <p class="lead">
-          Conclua seus estudos, conquiste uma profissão e vá além.
-          Supletivo EJA, cursos técnicos e cursos livres com certificação
-          reconhecida — 100% online e no seu ritmo.
+          <?= e(config('hero_subtitulo', 'Conclua seus estudos, conquiste uma profissão e vá além. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida — 100% online e no seu ritmo.')) ?>
         </p>
         <div class="hero__actions">
           <a href="#cursos" class="btn btn-light">Explorar cursos <i class="ri-graduation-cap-line"></i></a>
           <a href="#contato" class="btn btn-ghost-light">Falar com um consultor</a>
         </div>
         <div class="hero__stats">
-          <div class="stat"><strong>+12 mil</strong><span>Alunos matriculados</span></div>
-          <div class="stat"><strong>+80</strong><span>Cursos disponíveis</span></div>
-          <div class="stat"><strong>98%</strong><span>Satisfação</span></div>
+          <div class="stat"><strong><?= e(config('stat_alunos', '+12 mil')) ?></strong><span>Alunos matriculados</span></div>
+          <div class="stat"><strong><?= e(config('stat_cursos', '+80')) ?></strong><span>Cursos disponíveis</span></div>
+          <div class="stat"><strong><?= e(config('stat_satisfacao', '98%')) ?></strong><span>Satisfação</span></div>
         </div>
       </div>
 
@@ -147,9 +151,10 @@ $ano = date('Y');
         <div v-else-if="cursosFiltrados.length === 0" class="empty">Nenhum curso encontrado nesta modalidade.</div>
 
         <article class="course-card" v-for="c in cursosFiltrados" :key="c.id">
-          <a class="course-card__link" :href="'curso.php?id=' + c.id">
+          <a class="course-card__link" :href="'curso.php?id=' + (c.slug || c.id)">
           <div class="course-card__media" :style="{ background: c.cor }">
-            <span class="emoji">{{ c.emoji }}</span>
+            <img v-if="c.imagem" class="course-card__capa" :src="c.imagem" :alt="c.nome" loading="lazy">
+            <span v-else class="emoji">{{ c.emoji }}</span>
             <span class="course-card__badge">{{ c.categoriaLabel }}</span>
             <span v-if="c.desconto" class="course-card__off">-{{ c.desconto }}%</span>
           </div>
@@ -258,9 +263,9 @@ $ano = date('Y');
         <h2>Pronto para começar? <span class="gradient-text">Vamos conversar</span></h2>
         <p>Preencha o formulário e um de nossos consultores entrará em contato para tirar todas as suas dúvidas e ajudar na sua matrícula.</p>
 
-        <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span>(00) 00000-0000</span></div></div>
-        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span>contato@edualfa.com.br</span></div></div>
-        <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span>Segunda a sexta, das 8h às 18h</span></div></div>
+        <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span><?= e(config('telefone_exibicao', '(00) 00000-0000')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@edualfa.com.br')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span><?= e(config('horario_atendimento', 'Segunda a sexta, das 8h às 18h')) ?></span></div></div>
       </div>
 
       <form class="contact-form" data-reveal @submit.prevent="enviar">
@@ -306,10 +311,10 @@ $ano = date('Y');
           <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
           <p>Educação que transforma vidas. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida e 100% online.</p>
           <div class="footer__social">
-            <a href="#" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
-            <a href="#" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
-            <a href="#" aria-label="WhatsApp"><i class="ri-whatsapp-line"></i></a>
-            <a href="#" aria-label="YouTube"><i class="ri-youtube-fill"></i></a>
+            <?php if (config('instagram')): ?><a href="<?= e(config('instagram')) ?>" target="_blank" rel="noopener" aria-label="Instagram"><i class="ri-instagram-line"></i></a><?php endif; ?>
+            <?php if (config('facebook')): ?><a href="<?= e(config('facebook')) ?>" target="_blank" rel="noopener" aria-label="Facebook"><i class="ri-facebook-fill"></i></a><?php endif; ?>
+            <a href="<?= e($whatsapp) ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="ri-whatsapp-line"></i></a>
+            <?php if (config('youtube')): ?><a href="<?= e(config('youtube')) ?>" target="_blank" rel="noopener" aria-label="YouTube"><i class="ri-youtube-fill"></i></a><?php endif; ?>
           </div>
         </div>
         <div>
@@ -344,7 +349,7 @@ $ano = date('Y');
     </div>
   </footer>
 
-  <a href="https://wa.me/5500000000000" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <a href="<?= e($whatsapp) ?>" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
     <i class="ri-whatsapp-line"></i>
   </a>
 </div>

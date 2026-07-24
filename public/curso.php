@@ -1,16 +1,17 @@
 <?php
-// curso.php — página de conversão de um curso. Preço vem do Directus, o texto de _conteudo.php.
-// Uso: /curso.php?id=CT005
+// curso.php — página de conversão de um curso.
+// Preço vem do ava_catalogo_curso; textos e imagem, da site_catalogo_cursos.
+// Uso: /curso.php?id=CT005  ou  /curso.php?id=tecnico-em-administracao
 
 require __DIR__ . '/api/_catalogo.php';
 require __DIR__ . '/api/_conteudo.php';
 
-$id    = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $_GET['id'] ?? ''));
-$curso = $id !== '' ? cursoPorId($id) : null;
+// Aceita tanto o código (CT005) quanto o slug (tecnico-em-administracao).
+$chave = preg_replace('/[^A-Za-z0-9-]/', '', $_GET['id'] ?? '');
+$curso = $chave !== '' ? (cursoPorId(strtoupper($chave)) ?? cursoPorId(strtolower($chave))) : null;
 
 if (!$curso) {
-  http_response_code(404);
-  header('Location: index.php#cursos');
+  header('Location: index.php#cursos', true, 302);
   exit;
 }
 
@@ -31,21 +32,32 @@ $economia = max(0, (float) str_replace(['.', ','], ['', '.'], $curso['precoDe'])
 
 function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 
-$tituloPagina = $curso['nome'] . ' · ' . $curso['categoriaLabel'] . ' · EDUALFA';
-$whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero saber mais sobre o curso ' . $curso['nome'] . '.');
+$tituloPagina = $curso['seoTitulo'] !== ''
+  ? $curso['seoTitulo']
+  : $curso['nome'] . ' · ' . $curso['categoriaLabel'] . ' · EDUALFA';
+
+$metaDescricao = $curso['seoDescricao'] !== ''
+  ? $curso['seoDescricao']
+  : $conteudo['chamada'] . '. ' . $curso['descricao'];
+
+$whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
+  . rawurlencode('Olá! Quero saber mais sobre o curso ' . $curso['nome'] . '.');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="<?= e($conteudo['chamada']) ?>. <?= e($curso['descricao']) ?> Matrículas abertas na EDUALFA.">
+  <meta name="description" content="<?= e($metaDescricao) ?>">
   <meta name="theme-color" content="#0f2f6b">
   <title><?= e($tituloPagina) ?></title>
 
   <meta property="og:title" content="<?= e($curso['nome']) ?> · EDUALFA">
   <meta property="og:description" content="<?= e($conteudo['chamada']) ?>">
   <meta property="og:type" content="website">
+  <?php if ($curso['imagem'] !== ''): ?>
+  <meta property="og:image" content="<?= e($curso['imagem']) ?>">
+  <?php endif; ?>
 
   <link rel="icon" href="assets/img/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -110,7 +122,11 @@ $whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero sabe
       <!-- Cartão de oferta -->
       <aside class="oferta" id="oferta">
         <div class="oferta__topo" style="background: <?= e($curso['cor']) ?>">
-          <span class="oferta__emoji"><?= e($curso['emoji']) ?></span>
+          <?php if ($curso['imagem'] !== ''): ?>
+            <img class="oferta__capa" src="<?= e($curso['imagem']) ?>" alt="<?= e($curso['nome']) ?>" loading="lazy">
+          <?php else: ?>
+            <span class="oferta__emoji"><?= e($curso['emoji']) ?></span>
+          <?php endif; ?>
           <?php if ($curso['desconto']): ?>
             <span class="oferta__off">-<?= (int) $curso['desconto'] ?>% hoje</span>
           <?php endif; ?>
@@ -213,8 +229,8 @@ $whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero sabe
           <h2>Mais de <span class="gradient-text">12 mil alunos</span> já começaram aqui</h2>
           <p>Gente que trabalhava o dia inteiro, achava que não ia dar conta e hoje tem o certificado na mão. O curso foi desenhado exatamente para essa rotina apertada.</p>
           <div class="curso-prova__stats">
-            <div><strong>+12 mil</strong><span>alunos matriculados</span></div>
-            <div><strong>98%</strong><span>de satisfação</span></div>
+            <div><strong><?= e(config('stat_alunos', '+12 mil')) ?></strong><span>alunos matriculados</span></div>
+            <div><strong><?= e(config('stat_satisfacao', '98%')) ?></strong><span>de satisfação</span></div>
             <div><strong>100%</strong><span>online e no seu ritmo</span></div>
           </div>
         </div>
@@ -235,9 +251,9 @@ $whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero sabe
         <h2>Comece <span class="gradient-text">hoje</span> — a vaga é sua</h2>
         <p>Preencha os dados e um consultor entra em contato para confirmar a condição de <strong>R$ <?= e($curso['preco']) ?><?= $curso['parcelas'] ? ' em ' . (int) $curso['parcelas'] . 'x' : '' ?></strong> e concluir sua matrícula em <strong><?= e($curso['nome']) ?></strong>.</p>
 
-        <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span>(00) 00000-0000</span></div></div>
-        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span>contato@edualfa.com.br</span></div></div>
-        <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span>Segunda a sexta, das 8h às 18h</span></div></div>
+        <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span><?= e(config('telefone_exibicao', '(00) 00000-0000')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@edualfa.com.br')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span><?= e(config('horario_atendimento', 'Segunda a sexta, das 8h às 18h')) ?></span></div></div>
       </div>
 
       <form class="contact-form" id="form-matricula"
@@ -319,9 +335,13 @@ $whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero sabe
       <div class="course-grid">
         <?php foreach ($relacionados as $r): ?>
           <article class="course-card">
-            <a class="course-card__link" href="curso.php?id=<?= e($r['id']) ?>">
+            <a class="course-card__link" href="curso.php?id=<?= e($r['slug'] !== '' ? $r['slug'] : $r['id']) ?>">
               <div class="course-card__media" style="background: <?= e($r['cor']) ?>">
-                <span class="emoji"><?= e($r['emoji']) ?></span>
+                <?php if ($r['imagem'] !== ''): ?>
+                  <img class="course-card__capa" src="<?= e($r['imagem']) ?>" alt="<?= e($r['nome']) ?>" loading="lazy">
+                <?php else: ?>
+                  <span class="emoji"><?= e($r['emoji']) ?></span>
+                <?php endif; ?>
                 <span class="course-card__badge"><?= e($r['categoriaLabel']) ?></span>
                 <?php if ($r['desconto']): ?><span class="course-card__off">-<?= (int) $r['desconto'] ?>%</span><?php endif; ?>
               </div>
@@ -365,10 +385,10 @@ $whatsapp = 'https://wa.me/5500000000000?text=' . rawurlencode('Olá! Quero sabe
           <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
           <p>Educação que transforma vidas. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida e 100% online.</p>
           <div class="footer__social">
-            <a href="#" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
-            <a href="#" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
-            <a href="#" aria-label="WhatsApp"><i class="ri-whatsapp-line"></i></a>
-            <a href="#" aria-label="YouTube"><i class="ri-youtube-fill"></i></a>
+            <?php if (config('instagram')): ?><a href="<?= e(config('instagram')) ?>" target="_blank" rel="noopener" aria-label="Instagram"><i class="ri-instagram-line"></i></a><?php endif; ?>
+            <?php if (config('facebook')): ?><a href="<?= e(config('facebook')) ?>" target="_blank" rel="noopener" aria-label="Facebook"><i class="ri-facebook-fill"></i></a><?php endif; ?>
+            <a href="<?= e($whatsapp) ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="ri-whatsapp-line"></i></a>
+            <?php if (config('youtube')): ?><a href="<?= e(config('youtube')) ?>" target="_blank" rel="noopener" aria-label="YouTube"><i class="ri-youtube-fill"></i></a><?php endif; ?>
           </div>
         </div>
         <div>

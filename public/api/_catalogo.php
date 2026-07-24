@@ -1,14 +1,20 @@
 <?php
-// api/_catalogo.php — leitura do catálogo de cursos no Directus (ava_catalogo_curso).
-// Usado por api/cursos.php (JSON para a home) e por curso.php (página do curso).
+// api/_catalogo.php — leitura dos dados do site no Directus.
+//
+// Três coleções, com papéis bem separados:
+//   ava_catalogo_curso    → PREÇO (fonte única; não é duplicado em lugar nenhum)
+//   site_catalogo_cursos  → camada editorial do site (imagem, textos, destaque)
+//   site_configuracoes    → configurações gerais (contato, textos da home, SEO)
 //
 // Configuração (EasyPanel → Environment):
-//   DIRECTUS_URL   = https://cloud.edualfa.com.br
-//   DIRECTUS_TOKEN = <token estático do Directus>
-// Em desenvolvimento local, se as variáveis não existirem, os valores são lidos
-// de ../../conexao/conexao_directus_avaset_unico_edualfa.txt (pasta não versionada).
+//   API_DIRECTUS_CONFIGURACOES   = https://cloud.edualfa.com.br
+//   TOKEN_DIRECTUS_CONFIGURACOES = <token estático do Directus>
+// (também aceita DIRECTUS_URL / DIRECTUS_TOKEN)
 
-const COLECAO      = 'ava_catalogo_curso';
+const COL_PRECOS = 'ava_catalogo_curso';
+const COL_CURSOS = 'site_catalogo_cursos';
+const COL_CONFIG = 'site_configuracoes';
+
 const CACHE_TTL    = 600; // segundos
 const HTTP_TIMEOUT = 8;
 
@@ -16,49 +22,7 @@ const COR_AZUL  = 'linear-gradient(140deg,#0f2f6b,#1e56d6)';
 const COR_CIANO = 'linear-gradient(140deg,#1747b8,#22c9ec)';
 const COR_NAVY  = 'linear-gradient(140deg,#061a3a,#1747b8)';
 
-// ---------------------------------------------------------------- curadoria
-// Cursos livres em destaque no site (os demais ficam fora da vitrine).
-$LIVRES_DESTAQUE = ['CL001', 'CL003', 'CL006', 'CL011', 'CL017'];
-
-// Duração e descrição não existem no Directus — ficam curadas aqui.
-$DURACAO = [
-  'CE001' => '12 meses', 'CE002' => '8 meses', 'CE003' => '6 meses',
-  'CT003' => '18 meses', 'CT004' => '18 meses', 'CT005' => '18 meses',
-  'CT006' => '18 meses', 'CT007' => '18 meses', 'CT008' => '18 meses',
-  'CT009' => '18 meses', 'CT010' => '18 meses', 'CT011' => '18 meses',
-  'CL001' => '80 horas', 'CL003' => '100 horas', 'CL006' => '120 horas',
-  'CL011' => '120 horas', 'CL017' => '120 horas',
-];
-
-$DESCRICAO = [
-  'CE001' => 'Conclua o ensino fundamental e o médio de uma só vez, com certificação reconhecida e válida em todo o país.',
-  'CE002' => 'Termine o ensino médio no seu ritmo e conquiste o certificado para faculdade, concursos e trabalho.',
-  'CE003' => 'Só falta o 3º ano? Conclua apenas a etapa que ficou pendente e receba seu certificado.',
-  // Combos: ensino médio + formação técnica no mesmo curso, com dois certificados.
-  'CE002CT004' => 'Conclua o ensino médio e saia técnico em eletromecânica, pronto para a manutenção industrial.',
-  'CE002CT005' => 'Conclua o ensino médio e saia técnico em administração, a formação que serve a qualquer empresa.',
-  'CE002CT006' => 'Conclua o ensino médio e saia técnico em segurança do trabalho, profissão exigida por lei nas empresas.',
-  'CE002CT007' => 'Conclua o ensino médio e saia técnico em eletrotécnica, com espaço na energia solar e nas instalações.',
-  'CE002CT008' => 'Conclua o ensino médio e saia técnico em meio ambiente, área que só cresce nas empresas.',
-  'CE002CT009' => 'Conclua o ensino médio e saia técnico em edificações, apto a acompanhar obras e ler projetos.',
-  'CE002CT010' => 'Conclua o ensino médio e saia técnico em estética, pronto para atender ou abrir o próprio espaço.',
-  'CT003' => 'Trabalhe ao lado do cirurgião-dentista em clínicas e na saúde pública, com formação técnica completa.',
-  'CT004' => 'Una mecânica e eletricidade industrial para manter e operar máquinas em qualquer indústria.',
-  'CT005' => 'Domine gestão, finanças e rotinas administrativas exigidas pelo mercado de trabalho.',
-  'CT006' => 'Torne-se especialista em prevenção de acidentes e normas regulamentadoras (NRs).',
-  'CT007' => 'Projete, instale e faça a manutenção de sistemas elétricos residenciais, prediais e industriais.',
-  'CT008' => 'Atue com licenciamento, gestão de resíduos e sustentabilidade em empresas e órgãos públicos.',
-  'CT009' => 'Acompanhe obras, leia projetos e domine as etapas da construção civil.',
-  'CT010' => 'Aprenda desenvolvimento, redes e suporte para atuar na área de tecnologia.',
-  'CT011' => 'Formação completa em estética facial, corporal e capilar para atuar no mercado da beleza.',
-  'CL001' => 'Windows, Word, Excel e internet: a base que todo profissional precisa dominar.',
-  'CL003' => 'Crie artes profissionais para redes sociais, marcas e materiais impressos.',
-  'CL006' => 'Prepare-se para atuar em consultórios odontológicos com biossegurança e atendimento ao paciente.',
-  'CL011' => 'Rotinas de escritório, atendimento, documentos e organização para começar já a trabalhar.',
-  'CL017' => 'Escrituração, obrigações fiscais e rotinas de departamento pessoal na prática.',
-];
-
-// Emoji por palavra-chave do nome do curso (primeira correspondência vence).
+// Emoji por palavra-chave, usado só quando o curso não tem emoji nem capa definidos.
 $EMOJIS = [
   'enfermagem' => '🩺', 'saúde bucal' => '🦷', 'estética' => '💅',
   'segurança' => '🦺', 'eletrot' => '⚡', 'eletromec' => '⚙️',
@@ -99,7 +63,7 @@ function conexao(string $chave, string $padrao = ''): string {
   return $padrao;
 }
 
-/** Lê as credenciais de arquivos (dev local e .env do EasyPanel), com cache. */
+/** Lê as credenciais de arquivos (dev local e .env gerado pelo entrypoint), com cache. */
 function arquivosConexao(): array {
   static $dados = null;
   if ($dados !== null) return $dados;
@@ -107,11 +71,11 @@ function arquivosConexao(): array {
   $dados = [];
   foreach ([
     __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt', // dev local
-    __DIR__ . '/../../.env',
+    __DIR__ . '/../../.env',                                              // gravado pelo entrypoint
     __DIR__ . '/../.env',
     __DIR__ . '/.env',
     getcwd() . '/.env',
-    '/.env',                                                              // EasyPanel: "Create env file" com path ".env"
+    '/.env',
     '/app/.env',
   ] as $caminho) {
     foreach (@file($caminho, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $linha) {
@@ -125,21 +89,18 @@ function arquivosConexao(): array {
   return $dados;
 }
 
-// ---------------------------------------------------------------- helpers
-function caminhoCache(): string {
-  return rtrim(sys_get_temp_dir(), '/\\') . '/edualfa_catalogo.json';
+// ---------------------------------------------------------------- Directus
+function directusBase(): string {
+  return rtrim(conexao('DIRECTUS_URL'), '/');
 }
 
-function buscarDirectus(): ?array {
-  $base  = rtrim(conexao('DIRECTUS_URL'), '/');
+/** GET numa coleção do Directus. Devolve as linhas ou null se falhar. */
+function buscarColecao(string $colecao, array $params = []): ?array {
+  $base  = directusBase();
   $token = conexao('DIRECTUS_TOKEN');
   if ($base === '' || $token === '') return null;
 
-  $url = $base . '/items/' . COLECAO . '?' . http_build_query([
-    'limit'  => -1,
-    'fields' => 'id,id_curso,categoria,curso,ingresso,desconto,qtd_parcela,'
-              . 'valor_parcela,valor_parcela_normal,valor_total,codigo_unico_especial',
-  ]);
+  $url = $base . '/items/' . $colecao . '?' . http_build_query($params + ['limit' => -1]);
 
   $ch = curl_init($url);
   curl_setopt_array($ch, [
@@ -154,6 +115,11 @@ function buscarDirectus(): ?array {
   if ($corpo === false || $status !== 200) return null;
   $json = json_decode($corpo, true);
   return isset($json['data']) && is_array($json['data']) ? $json['data'] : null;
+}
+
+// ---------------------------------------------------------------- helpers
+function caminhoCache(string $nome = 'catalogo'): string {
+  return rtrim(sys_get_temp_dir(), '/\\') . '/edualfa_' . $nome . '.json';
 }
 
 function nomeCurso(string $bruto): string {
@@ -173,17 +139,75 @@ function moeda($valor): string {
   return number_format((float) $valor, 2, ',', '.');
 }
 
+/** Quebra um campo de texto "um item por linha" numa lista limpa. */
+function linhas(?string $texto): array {
+  if ($texto === null || trim($texto) === '') return [];
+  $itens = preg_split('/\R/u', $texto);
+  return array_values(array_filter(array_map('trim', $itens), fn($i) => $i !== ''));
+}
+
+// ---------------------------------------------------------------- configurações do site
+/** Valor de uma chave da site_configuracoes. */
+function config(string $chave, string $padrao = ''): string {
+  static $mapa = null;
+  if ($mapa === null) {
+    $mapa = [];
+    $cache = caminhoCache('config');
+
+    $linhas = null;
+    if (is_readable($cache) && (time() - filemtime($cache) < CACHE_TTL)) {
+      $linhas = json_decode((string) file_get_contents($cache), true);
+    }
+    if (!is_array($linhas)) {
+      $linhas = buscarColecao(COL_CONFIG, ['fields' => 'chave,valor,valor_extendido']);
+      if ($linhas !== null) {
+        @file_put_contents($cache, json_encode($linhas, JSON_UNESCAPED_UNICODE));
+      } elseif (is_readable($cache)) {
+        $linhas = json_decode((string) file_get_contents($cache), true) ?: [];
+      } else {
+        $linhas = [];
+      }
+    }
+    foreach ($linhas as $l) {
+      // valor_extendido tem precedência: é onde ficam os textos longos.
+      $v = trim((string) ($l['valor_extendido'] ?? '')) !== ''
+        ? $l['valor_extendido']
+        : ($l['valor'] ?? '');
+      if (isset($l['chave'])) $mapa[$l['chave']] = (string) $v;
+    }
+  }
+  return ($mapa[$chave] ?? '') !== '' ? $mapa[$chave] : $padrao;
+}
+
+/** URL da imagem de capa (servida pelo proxy, para não expor o token). */
+function urlImagem(?string $uuid): string {
+  if (!$uuid || !preg_match('/^[0-9a-f-]{36}$/i', $uuid)) return '';
+  return 'api/imagem.php?id=' . $uuid;
+}
+
 // ---------------------------------------------------------------- montagem
-function montarCatalogo(array $linhas, array $ctx): array {
-  extract($ctx); // $LIVRES_DESTAQUE, $DURACAO, $DESCRICAO, $EMOJIS, $CATEGORIAS
+/**
+ * Junta preço (ava_catalogo_curso) com a camada editorial (site_catalogo_cursos).
+ * O preço nunca é lido da tabela do site — ela não guarda valores.
+ */
+function montarCatalogo(array $precos, array $editorial, array $ctx): array {
+  extract($ctx); // $EMOJIS, $CATEGORIAS
+
+  $site = [];
+  foreach ($editorial as $e) {
+    if (!empty($e['id_curso'])) $site[$e['id_curso']] = $e;
+  }
 
   // Uma linha por curso: a versão com a menor parcela (melhor oferta vigente).
   $melhores = [];
-  foreach ($linhas as $l) {
+  foreach ($precos as $l) {
     $id  = $l['id_curso'] ?? '';
     $cat = strtoupper($l['categoria'] ?? '');
     if ($id === '' || !isset($CATEGORIAS[$cat])) continue;
-    if ($CATEGORIAS[$cat][0] === 'livre' && !in_array($id, $LIVRES_DESTAQUE, true)) continue;
+
+    $s = $site[$id] ?? null;
+    if ($s && !($s['ativo'] ?? true)) continue;                       // desligado no Directus
+    if ($CATEGORIAS[$cat][0] === 'livre' && !($s['destaque'] ?? false)) continue; // livre só em destaque
 
     $parcela = (float) ($l['valor_parcela'] ?? 0);
     if ($parcela <= 0) continue;
@@ -192,36 +216,62 @@ function montarCatalogo(array $linhas, array $ctx): array {
     }
   }
 
-  $ordem = ['eja' => 1, 'tecnico' => 2, 'livre' => 3];
-  uasort($melhores, function ($a, $b) use ($CATEGORIAS, $ordem) {
-    $ca = $ordem[$CATEGORIAS[strtoupper($a['categoria'])][0]];
-    $cb = $ordem[$CATEGORIAS[strtoupper($b['categoria'])][0]];
-    return $ca <=> $cb ?: strcmp($a['id_curso'], $b['id_curso']);
+  $peso = ['eja' => 1, 'tecnico' => 2, 'livre' => 3];
+  uasort($melhores, function ($a, $b) use ($CATEGORIAS, $peso, $site) {
+    $ca = $peso[$CATEGORIAS[strtoupper($a['categoria'])][0]];
+    $cb = $peso[$CATEGORIAS[strtoupper($b['categoria'])][0]];
+    if ($ca !== $cb) return $ca <=> $cb;
+    $oa = (int) ($site[$a['id_curso']]['ordem'] ?? 999);
+    $ob = (int) ($site[$b['id_curso']]['ordem'] ?? 999);
+    return $oa <=> $ob ?: strcmp($a['id_curso'], $b['id_curso']);
   });
 
   $cores  = [COR_AZUL, COR_CIANO, COR_NAVY];
   $cursos = [];
   $i = 0;
+
   foreach ($melhores as $id => $l) {
     [$slug, $rotulo] = $CATEGORIAS[strtoupper($l['categoria'])];
-    $nome     = nomeCurso($l['curso'] ?? '');
+    $s        = $site[$id] ?? [];
     $parcelas = (int) ($l['qtd_parcela'] ?? 0);
+    $nome     = trim($s['nome_exibicao'] ?? '') !== '' ? $s['nome_exibicao'] : nomeCurso($l['curso'] ?? '');
 
     $cursos[] = [
       'id'             => $id,
       'categoria'      => $slug,
       'categoriaLabel' => $rotulo,
       'nome'           => $nome,
-      'emoji'          => emojiDe($nome, $EMOJIS),
-      'descricao'      => $DESCRICAO[$id] ?? 'Curso com certificação reconhecida e material 100% online.',
-      'duracao'        => $DURACAO[$id] ?? ($parcelas > 0 ? $parcelas . ' meses' : 'Flexível'),
-      'modalidade'     => $slug === 'tecnico' ? 'EAD com polo de apoio' : 'EAD',
+      'slug'           => $s['slug'] ?? '',
+      'emoji'          => trim($s['emoji'] ?? '') !== '' ? $s['emoji'] : emojiDe($nome, $EMOJIS),
+      'imagem'         => urlImagem($s['imagem_capa'] ?? null),
+      'descricao'      => trim($s['descricao_card'] ?? '') !== ''
+                            ? $s['descricao_card']
+                            : 'Curso com certificação reconhecida e material 100% online.',
+      'duracao'        => trim($s['duracao'] ?? '') !== ''
+                            ? $s['duracao']
+                            : ($parcelas > 0 ? $parcelas . ' meses' : 'Flexível'),
+      'modalidade'     => trim($s['modalidade'] ?? '') !== ''
+                            ? $s['modalidade']
+                            : ($slug === 'tecnico' ? 'EAD com polo de apoio' : 'EAD'),
+
+      // preço — sempre do ava_catalogo_curso
       'preco'          => moeda($l['valor_parcela']),
       'precoDe'        => moeda($l['valor_parcela_normal'] ?? 0),
       'parcelas'       => $parcelas,
       'desconto'       => (int) ($l['desconto'] ?? 0),
       'valorTotal'     => moeda($l['valor_total'] ?? 0),
       'codigo'         => $l['codigo_unico_especial'] ?? $id,
+
+      // conteúdo da página de conversão
+      'chamada'        => $s['chamada']  ?? '',
+      'promessa'       => $s['promessa'] ?? '',
+      'mercado'        => $s['mercado']  ?? '',
+      'aprender'       => linhas($s['aprender'] ?? null),
+      'publico'        => linhas($s['publico']  ?? null),
+      'saidas'         => linhas($s['saidas']   ?? null),
+      'seoTitulo'      => $s['seo_titulo']    ?? '',
+      'seoDescricao'   => $s['seo_descricao'] ?? '',
+
       'cor'            => $cores[$i++ % 3],
     ];
   }
@@ -234,8 +284,8 @@ function montarCatalogo(array $linhas, array $ctx): array {
  * @return array{0: array, 1: string} lista de cursos e origem dos dados
  */
 function catalogo(): array {
-  global $LIVRES_DESTAQUE, $DURACAO, $DESCRICAO, $EMOJIS, $CATEGORIAS;
-  $ctx = compact('LIVRES_DESTAQUE', 'DURACAO', 'DESCRICAO', 'EMOJIS', 'CATEGORIAS');
+  global $EMOJIS, $CATEGORIAS;
+  $ctx = compact('EMOJIS', 'CATEGORIAS');
 
   $cache = caminhoCache();
 
@@ -244,11 +294,17 @@ function catalogo(): array {
     if (is_array($cursos) && $cursos !== []) return [$cursos, 'cache'];
   }
 
-  $linhas = buscarDirectus();
-  if ($linhas !== null) {
-    $cursos = montarCatalogo($linhas, $ctx);
-    @file_put_contents($cache, json_encode($cursos, JSON_UNESCAPED_UNICODE));
-    return [$cursos, 'directus'];
+  $precos    = buscarColecao(COL_PRECOS, ['fields' =>
+    'id_curso,categoria,curso,ingresso,desconto,qtd_parcela,valor_parcela,'
+    . 'valor_parcela_normal,valor_total,codigo_unico_especial']);
+  $editorial = buscarColecao(COL_CURSOS, ['fields' => '*']);
+
+  if ($precos !== null) {
+    $cursos = montarCatalogo($precos, $editorial ?? [], $ctx);
+    if ($cursos !== []) {
+      @file_put_contents($cache, json_encode($cursos, JSON_UNESCAPED_UNICODE));
+      return [$cursos, 'directus'];
+    }
   }
 
   // Directus fora do ar: serve o último catálogo conhecido, mesmo vencido.
@@ -260,11 +316,14 @@ function catalogo(): array {
   return [[], 'indisponivel'];
 }
 
-/** Um curso do catálogo pelo id_curso (ex.: CT005), ou null. */
-function cursoPorId(string $id): ?array {
+/** Um curso do catálogo pelo id_curso (ex.: CT005) ou pelo slug. */
+function cursoPorId(string $chave): ?array {
   [$cursos] = catalogo();
   foreach ($cursos as $c) {
-    if ($c['id'] === $id) return $c;
+    if ($c['id'] === $chave) return $c;
+  }
+  foreach ($cursos as $c) {
+    if ($c['slug'] !== '' && strcasecmp($c['slug'], $chave) === 0) return $c;
   }
   return null;
 }

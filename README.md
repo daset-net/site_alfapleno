@@ -8,10 +8,13 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
 
 - **Design moderno e responsivo** (mobile-first), com animações suaves.
 - **3 modalidades de cursos:** Supletivo EJA, Curso Técnico e Curso Livre.
-- **Catálogo dinâmico** com filtro por modalidade (Vue 3), alimentado pelo **Directus**
-  (coleção `ava_catalogo_curso` do tenant EDUALFA), com preços e descontos reais.
-- **Página de conversão por curso** (`/curso.php?id=CT005`): argumento de matrícula,
-  grade, público, saídas profissionais, oferta com desconto, FAQ e formulário.
+- **Catálogo dinâmico** com filtro por modalidade (Vue 3), alimentado pelo **Directus**,
+  com preços e descontos reais.
+- **Conteúdo editável no Directus**: textos, imagens de capa, contatos e SEO são
+  administrados nas coleções do site — sem precisar mexer no código.
+- **Página de conversão por curso** (`/curso.php?id=tecnico-em-administracao`):
+  argumento de matrícula, grade, público, saídas profissionais, oferta com
+  desconto, FAQ e formulário. Aceita o slug ou o código do curso.
 - **API PHP** para catálogo (`/api/cursos.php`) e formulário de contato/matrícula (`/api/contato.php`).
 - **Leads** salvos em CSV persistente (`data/leads.csv`).
 - Botão flutuante de WhatsApp.
@@ -34,9 +37,10 @@ site_edualfa/
 │   │       ├── edualfa-negativo.png   # logo branca (fundos escuros)
 │   │       └── favicon.ico / .png
 │   └── api/
-│       ├── _catalogo.php   # leitura do Directus + cache (usado pelos dois)
-│       ├── _conteudo.php   # texto de vendas de cada curso
+│       ├── _catalogo.php   # leitura do Directus + cache (usado por todas as páginas)
+│       ├── _conteudo.php   # texto de reserva por modalidade
 │       ├── cursos.php      # catálogo em JSON
+│       ├── imagem.php      # proxy das capas do Directus (não expõe o token)
 │       └── contato.php     # recebe leads → data/leads.csv
 └── README.md
 ```
@@ -79,17 +83,54 @@ docker run -p 8080:80 edualfa
   sobre fundos claros (header ao rolar). O header alterna entre as duas
   automaticamente via CSS.
 - **Cores:** variáveis CSS no topo de `public/assets/css/style.css`.
-- **Cursos:** vêm do Directus (`ava_catalogo_curso`). Para cada curso é exibida a
-  **melhor oferta vigente** (menor valor de parcela entre as versões de desconto).
-  O que fica curado em `public/api/cursos.php`:
-  - `$LIVRES_DESTAQUE` — quais cursos livres aparecem na vitrine (os técnicos e o
-    EJA entram todos automaticamente);
-  - `$DESCRICAO` e `$DURACAO` — textos e carga horária (não existem no Directus);
-  - `$EMOJIS` — ícone escolhido por palavra-chave do nome do curso.
-  O resultado fica em cache por 10 minutos; se o Directus cair, o último catálogo
-  conhecido continua sendo servido.
-- **Texto da página do curso:** `public/api/_conteudo.php`. Cada curso tem chamada,
-  promessa, o que se aprende, para quem é, saídas profissionais e argumento de
-  mercado. Cursos sem entrada própria usam o texto padrão da modalidade, e os
-  combos "EJA + Técnico" são montados juntando as duas partes.
-- **Contatos (WhatsApp/e-mail):** ajuste em `public/index.php` e `public/api/contato.php`.
+
+## 🗄️ Conteúdo no Directus
+
+Quase tudo do site é editado no Directus da EDUALFA, **sem mexer no código**.
+Três coleções, com papéis bem separados:
+
+| Coleção | Papel |
+|---|---|
+| `ava_catalogo_curso` | **Preço.** Fonte única de valores, parcelas e descontos. Não é copiado para lugar nenhum. |
+| `site_catalogo_cursos` | **Camada editorial do site.** Imagem de capa, textos, slug, ordem e quais cursos aparecem. |
+| `site_configuracoes` | **Configurações gerais.** Contato, redes sociais, textos da home, números e SEO. |
+
+### `site_catalogo_cursos` — uma linha por curso
+
+Ligada ao preço pelo campo `id_curso` (ex.: `CT005`). **Não guarda valores** — o
+preço é buscado no `ava_catalogo_curso` na hora da leitura, então alterar um
+desconto lá se reflete no site sozinho, sem risco de anunciar preço errado.
+
+- `ativo` — desmarque para tirar o curso do site.
+- `destaque` — cursos **livres** só aparecem na vitrine se marcados (EJA e técnicos entram todos).
+- `ordem` — posição dentro da modalidade.
+- `imagem_capa` — capa do card e da página. Sem imagem, o site usa o `emoji`.
+- `nome_exibicao`, `descricao_card`, `duracao`, `modalidade`, `slug`.
+- `chamada`, `promessa`, `mercado` — texto de conversão da página do curso.
+- `aprender`, `publico`, `saidas` — **um item por linha**.
+- `seo_titulo`, `seo_descricao`.
+
+Campo em branco cai num padrão sensato da modalidade (`public/api/_conteudo.php`),
+então a página nunca abre quebrada.
+
+### `site_configuracoes` — chave/valor
+
+Mesmo formato da `avaset_configuracoes`. Chaves usadas hoje: `whatsapp` (só
+dígitos, formato internacional), `telefone_exibicao`, `email_contato`,
+`horario_atendimento`, `instagram`, `facebook`, `youtube` (vazio esconde o
+ícone), `hero_badge`, `hero_titulo`, `hero_subtitulo`, `stat_alunos`,
+`stat_cursos`, `stat_satisfacao`, `seo_titulo`, `seo_descricao`.
+
+Textos longos podem ir em `valor_extendido`, que tem precedência sobre `valor`.
+
+### Cache e resiliência
+
+O catálogo e as configurações ficam **10 minutos em cache** em disco. Se o
+Directus ficar fora do ar, o site continua servindo a última versão conhecida em
+vez de aparecer vazio.
+
+### Imagens
+
+As capas são servidas por `public/api/imagem.php`, que busca o arquivo no
+Directus pelo servidor e devolve só os bytes — assim o token **não** vai para o
+navegador. Aceita `?w=` em 400, 600, 800, 1200 ou 1600.
