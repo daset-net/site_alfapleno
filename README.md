@@ -16,6 +16,8 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
   argumento de matrícula, grade, público, saídas profissionais, oferta com
   desconto, FAQ e formulário. Aceita o slug ou o código do curso.
 - **API PHP** para catálogo (`/api/cursos.php`) e formulário de contato/matrícula (`/api/contato.php`).
+- **Painel próprio** em `/admin`, com o **mesmo login do `ead.edualfa.com.br`**
+  (sem cadastro nem senha separada), para trocar capas e editar textos.
 - **Leads** salvos em CSV persistente (`data/leads.csv`).
 - Botão flutuante de WhatsApp.
 
@@ -28,6 +30,15 @@ site_edualfa/
 ├── public/                 # docroot servido pelo OpenLiteSpeed
 │   ├── index.php           # página principal (Vue 3)
 │   ├── curso.php           # página de conversão de um curso (?id=CT005)
+│   ├── robots.txt          # bloqueia /admin e /api nos buscadores
+│   ├── admin/              # painel: login do ead + capas e textos
+│   │   ├── index.php       # login (tabela_gestores)
+│   │   ├── painel.php      # configurações gerais do site
+│   │   ├── cursos.php      # lista dos cursos + envio das capas
+│   │   ├── curso.php       # edição dos textos de um curso
+│   │   ├── _auth.php       # sessão, CSRF, limite de tentativas
+│   │   ├── _dados.php      # escrita no Directus e upload de imagem
+│   │   └── admin.css
 │   ├── assets/
 │   │   ├── css/style.css
 │   │   ├── js/app.js       # Vue da home
@@ -134,3 +145,32 @@ vez de aparecer vazio.
 As capas são servidas por `public/api/imagem.php`, que busca o arquivo no
 Directus pelo servidor e devolve só os bytes — assim o token **não** vai para o
 navegador. Aceita `?w=` em 400, 600, 800, 1200 ou 1600.
+
+## 🔐 Painel do site (`/admin`)
+
+Para quem não quer abrir o Directus, o site tem um painel próprio em
+`https://edualfa.com.br/admin`.
+
+**Não existe cadastro nem senha separada.** O login é validado contra a
+`tabela_gestores` do Directus da EDUALFA — a mesma do `ead.edualfa.com.br`.
+Quem troca a senha no AVASET troca aqui junto; quem é bloqueado lá perde o
+acesso aqui na hora.
+
+- **Quem entra:** gestores de nível `admin`/`geral` (mesma regra que o painel do
+  AVASET usa para liberar a tela de gestores). Gestor com `situacao` bloqueado,
+  inativo ou desativado é barrado.
+- **Verificação de senha:** bcrypt → texto puro (legado) → MD5, na mesma ordem do
+  `api/login.php` do AVASET, para nenhum gestor existente ficar de fora.
+- **O que dá para fazer:** trocar/remover a capa dos cursos, mostrar ou esconder
+  um curso, pôr um curso livre na vitrine, editar todos os textos da página do
+  curso e as configurações gerais do site.
+- **O que NÃO dá para fazer:** mexer em preço, parcelas ou desconto — isso é do
+  catálogo do AVASET, de propósito.
+
+Ao salvar, o cache é limpo automaticamente, então a mudança aparece no site na
+hora. O painel tem `noindex`, está bloqueado no `robots.txt`, exige token CSRF
+em todo formulário, expira a sessão em 2 horas de inatividade e trava o IP após
+8 tentativas de login erradas em 15 minutos.
+
+> As imagens são validadas pelo conteúdo (não pela extensão) e limitadas a 8 MB.
+> Aceita JPG, PNG, WEBP e GIF.

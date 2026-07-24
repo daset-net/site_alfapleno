@@ -122,6 +122,13 @@ function caminhoCache(string $nome = 'catalogo'): string {
   return rtrim(sys_get_temp_dir(), '/\\') . '/edualfa_' . $nome . '.json';
 }
 
+/** Invalida o cache para que uma edição no Directus apareça no site na hora. */
+function limparCache(): void {
+  foreach (['catalogo', 'config'] as $nome) {
+    @unlink(caminhoCache($nome));
+  }
+}
+
 function nomeCurso(string $bruto): string {
   $nome = preg_replace('/^(Tecnologia|Profissional|Suporte)\s+/u', '', trim($bruto));
   return preg_replace('/\s+/u', ' ', $nome);
