@@ -231,6 +231,18 @@ calculada a partir do conteúdo cadastrado (`ava_pacote_materia` = atividades,
 Ou seja, uma matéria com 10 questões e podcast dá `10×(1+1) + 10 = 30h`. O total
 do curso é a soma das matérias e aparece no topo da seção.
 
+### Carga mínima do Catálogo Nacional
+
+Curso técnico tem carga horária mínima definida no **CNCT** (Administração 800h,
+a maioria 1200h) e o site não pode anunciar menos. O mínimo de cada curso fica no
+campo `carga_horaria_minima` da `site_catalogo_cursos`; sem ele, vale o padrão da
+modalidade (`carga_minima_tecnico`, `carga_minima_eja`, `carga_minima_livre`).
+
+Quando a soma das matérias fica **abaixo** do mínimo, as horas são distribuídas
+proporcionalmente até passar um pouco dele — `carga_margem_percentual` (padrão
+`5`) diz quanto. A proporção entre as matérias não muda e o total continua sendo
+a soma da lista. Curso que já soma mais que o mínimo fica como está.
+
 > Enquanto as atividades não estiverem cadastradas no Directus da escola, quase
 > tudo cai no `carga_horaria_padrao`. Assim que elas entram, o número passa a
 > variar por matéria sozinho.

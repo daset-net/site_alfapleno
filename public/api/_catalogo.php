@@ -369,6 +369,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       'saidas'         => linhas($s['saidas']   ?? null),
       'seoTitulo'      => $s['seo_titulo']    ?? '',
       'seoDescricao'   => $s['seo_descricao'] ?? '',
+      'cargaMinima'    => (int) ($s['carga_horaria_minima'] ?? 0),
 
       'cor'            => $cores[$i++ % 3],
     ];
@@ -593,14 +594,65 @@ function materiasDoCurso(array $curso): array {
 
   // Caminho normal: mesmo id nas duas tabelas, confirmado pelo nome.
   $grade = $grades[strtoupper($curso['id'])] ?? null;
-  if ($grade && mesmoCurso($curso['nome'], $grade['nome'])) return $grade['materias'];
+  if ($grade && mesmoCurso($curso['nome'], $grade['nome'])) {
+    return respeitarCargaMinima($grade['materias'], $curso);
+  }
 
   // Pacotes antigos guardam outro id (numérico, ou trocado entre cursos):
   // aí vale o nome, que é o que o aluno vê.
   foreach ($grades as $g) {
-    if (mesmoCurso($curso['nome'], $g['nome'])) return $g['materias'];
+    if (mesmoCurso($curso['nome'], $g['nome'])) {
+      return respeitarCargaMinima($g['materias'], $curso);
+    }
   }
   return [];
+}
+
+/** Carga mínima do curso: a da ficha ou, sem ela, o padrão da modalidade. */
+function cargaMinima(array $curso): int {
+  if (!empty($curso['cargaMinima'])) return (int) $curso['cargaMinima'];
+
+  $padrao = [
+    'tecnico' => (int) config('carga_minima_tecnico', '1200'),
+    'eja'     => (int) config('carga_minima_eja', '1200'),
+    'livre'   => (int) config('carga_minima_livre', '0'),
+  ];
+  return $padrao[$curso['categoria']] ?? 0;
+}
+
+/**
+ * O curso técnico tem carga horária mínima definida no Catálogo Nacional de
+ * Cursos Técnicos (Administração 800h, a maioria 1200h) e o site não pode
+ * anunciar menos que isso. Quando a soma das matérias fica abaixo, as horas são
+ * distribuídas proporcionalmente até passar um pouco do mínimo — a proporção
+ * entre as matérias continua a mesma, e o total bate com a soma da lista.
+ *
+ * Curso que já soma mais que o mínimo fica como está: ninguém precisa inflar o
+ * que já é grande.
+ */
+function respeitarCargaMinima(array $materias, array $curso): array {
+  $minima = cargaMinima($curso);
+  if ($minima <= 0 || !$materias) return $materias;
+
+  $margem = max(0, (float) config('carga_margem_percentual', '5'));
+  $alvo   = (int) (ceil($minima * (1 + $margem / 100) / 10) * 10);
+
+  $soma = array_sum(array_column($materias, 'horas'));
+  if ($soma <= 0 || $soma >= $alvo) return $materias;
+
+  $fator = $alvo / $soma;
+  foreach ($materias as $i => $m) {
+    $materias[$i]['horas'] = max(1, (int) round($m['horas'] * $fator));
+  }
+
+  // O arredondamento sobra ou falta algumas horas: acerta na maior matéria,
+  // para a soma bater com o total anunciado.
+  $resto = $alvo - array_sum(array_column($materias, 'horas'));
+  if ($resto !== 0) {
+    $maior = array_keys(array_column($materias, 'horas'), max(array_column($materias, 'horas')))[0];
+    $materias[$maior]['horas'] = max(1, $materias[$maior]['horas'] + $resto);
+  }
+  return $materias;
 }
 
 /** Um curso do catálogo pelo id_curso (ex.: CT005) ou pelo slug. */
