@@ -5,6 +5,9 @@
 // site_alunos_inscricoes_especiais da site_configuracoes) e devolve as linhas
 // prontas para o balão, junto com o texto e os tempos configurados no painel.
 //
+// Só entram inscrições cujo id_curso está ATIVO no catálogo — o balão nunca
+// anuncia um curso que o visitante não consegue comprar.
+//
 // O texto é um modelo com marcadores, escrito na site_configuracoes:
 //   {nome} {primeiro_nome} {curso} {cidade} {estado} {quando}
 // *entre asteriscos* vira negrito.
@@ -16,28 +19,7 @@ header('Cache-Control: public, max-age=300');
 
 const AVISOS_LIMITE = 60; // quantas inscrições entram no rodízio
 
-/** "há 12 minutos", "ontem", "há 3 meses" — a partir do data_hora da linha. */
-function avisoQuando(?string $bruto): string {
-  $texto = trim((string) $bruto);
-  if ($texto === '') return '';
-
-  $ts = strtotime($texto);
-  if ($ts === false) return '';
-
-  $seg = time() - $ts;
-  if ($seg < 0)      return 'agora mesmo';
-  if ($seg < 120)    return 'agora mesmo';
-  if ($seg < 3600)   return 'há ' . (int) ($seg / 60) . ' minutos';
-  if ($seg < 7200)   return 'há 1 hora';
-  if ($seg < 86400)  return 'há ' . (int) ($seg / 3600) . ' horas';
-  if ($seg < 172800) return 'ontem';
-  if ($seg < 2592000) return 'há ' . (int) ($seg / 86400) . ' dias';
-  if ($seg < 5184000) return 'há 1 mês';
-  if ($seg < 31536000) return 'há ' . (int) ($seg / 2592000) . ' meses';
-  return 'há mais de um ano';
-}
-
-/** Iniciais para o avatar quando o curso não tem capa. */
+/** Iniciais para o avatar quando o curso não tem capa nem emoji. */
 function avisoIniciais(string $nome): string {
   $partes = preg_split('/\s+/u', trim($nome)) ?: [];
   $partes = array_values(array_filter($partes, fn($p) => mb_strlen($p, 'UTF-8') > 2));
@@ -47,36 +29,10 @@ function avisoIniciais(string $nome): string {
   return mb_strtoupper($ini, 'UTF-8');
 }
 
-/**
- * Casa o curso escrito na inscrição com o curso do catálogo, para o balão
- * levar a capa e o link da página de conversão. Sem correspondência, o balão
- * ainda aparece — só sem imagem e sem link.
- */
-function avisoCurso(string $nome, array $cursos): array {
-  $alvo = mb_strtolower(trim($nome), 'UTF-8');
-  if ($alvo === '') return [];
-
-  foreach ($cursos as $c) {
-    if (mb_strtolower($c['nome'], 'UTF-8') === $alvo) return $c;
-  }
-  // O catálogo tira prefixos ("Profissional", "Tecnologia") do nome exibido;
-  // a inscrição costuma trazer o nome cheio, então tenta pelo miolo também.
-  $curto = mb_strtolower(nomeCurso($nome), 'UTF-8');
-  foreach ($cursos as $c) {
-    if (mb_strtolower($c['nome'], 'UTF-8') === $curto) return $c;
-  }
-  // Nomes compostos ("EJA Ensino Médio + Técnico em Estética") batem com mais de
-  // um curso: fica com o mais específico, isto é, o nome mais longo.
-  $melhor = [];
-  foreach ($cursos as $c) {
-    $n = mb_strtolower($c['nome'], 'UTF-8');
-    if ($n === '') continue;
-    if (mb_strpos($alvo, $n, 0, 'UTF-8') === false && mb_strpos($curto, $n, 0, 'UTF-8') === false) continue;
-    if (!$melhor || mb_strlen($n, 'UTF-8') > mb_strlen(mb_strtolower($melhor['nome'], 'UTF-8'), 'UTF-8')) {
-      $melhor = $c;
-    }
-  }
-  return $melhor;
+/** Quantas linhas da coleção casam com o filtro (para sortear a janela). */
+function avisosTotal(string $colecao, array $filtro): int {
+  $r = buscarColecao($colecao, ['filter' => $filtro, 'aggregate' => ['count' => 'id']]);
+  return (int) ($r[0]['count']['id'] ?? $r[0]['count'] ?? 0);
 }
 
 /** Inscrições prontas para o balão, com cache em disco. */
@@ -87,11 +43,26 @@ function avisosInscricoes(): array {
     if (is_array($itens)) return $itens;
   }
 
+  // Catálogo do site já vem sem os cursos desativados no AVASET: quem está aqui
+  // está à venda. O id_curso da inscrição é a chave para casar os dois.
+  [$cursos] = catalogo();
+  $porId = [];
+  foreach ($cursos as $c) $porId[strtoupper($c['id'])] = $c;
+  if (!$porId) return [];
+
   $colecao = config('site_alunos_inscricoes_especiais', 'site_alunos_inscricoes_especiais');
-  $linhas  = buscarColecao($colecao, [
-    'fields' => 'nome,curso,cidade,estado,data_hora',
-    'sort'   => '-data_hora',
+  $filtro  = ['id_curso' => ['_in' => array_keys($porId)]];
+
+  // A tabela tem milhares de linhas: em vez de mostrar sempre as mesmas, sorteia
+  // uma janela diferente a cada vez que o cache vence.
+  $total  = avisosTotal($colecao, $filtro);
+  $offset = $total > AVISOS_LIMITE ? random_int(0, $total - AVISOS_LIMITE) : 0;
+
+  $linhas = buscarColecao($colecao, [
+    'fields' => 'nome,curso,id_curso,cidade,estado,visto_por_ultimo',
+    'filter' => $filtro,
     'limit'  => AVISOS_LIMITE,
+    'offset' => $offset,
   ]);
 
   if ($linhas === null) {
@@ -100,27 +71,29 @@ function avisosInscricoes(): array {
     return is_array($itens) ? $itens : [];
   }
 
-  [$cursos] = catalogo();
-
   $itens = [];
   foreach ($linhas as $l) {
-    $nome  = trim((string) ($l['nome'] ?? ''));
-    $curso = trim((string) ($l['curso'] ?? ''));
-    if ($nome === '' || $curso === '') continue;
+    $nome = trim((string) ($l['nome'] ?? ''));
+    $id   = strtoupper(trim((string) ($l['id_curso'] ?? '')));
+    if ($nome === '' || !isset($porId[$id])) continue;
 
-    $c = avisoCurso($curso, $cursos);
+    $c = $porId[$id];
+    // O nome escrito na inscrição costuma ser mais específico (combos de EJA +
+    // técnico); sem ele, cai no nome do catálogo.
+    $curso = trim((string) ($l['curso'] ?? '')) !== '' ? trim((string) $l['curso']) : $c['nome'];
 
     $itens[] = [
-      'nome'        => $nome,
+      'nome'         => $nome,
       'primeiroNome' => preg_split('/\s+/u', $nome)[0] ?? $nome,
-      'curso'       => $curso,
-      'cidade'      => trim((string) ($l['cidade'] ?? '')),
-      'estado'      => trim((string) ($l['estado'] ?? '')),
-      'quando'      => avisoQuando($l['data_hora'] ?? null),
-      'iniciais'    => avisoIniciais($nome),
-      'imagem'      => $c['imagem'] ?? '',
-      'emoji'       => $c['emoji'] ?? '',
-      'link'        => isset($c['id']) ? 'curso.php?id=' . rawurlencode($c['slug'] !== '' ? $c['slug'] : $c['id']) : '',
+      'curso'        => $curso,
+      'cidade'       => trim((string) ($l['cidade'] ?? '')),
+      'estado'       => trim((string) ($l['estado'] ?? '')),
+      // Tempo como está escrito na coluna visto_por_ultimo ("20 minutos atrás").
+      'quando'       => trim((string) ($l['visto_por_ultimo'] ?? '')),
+      'iniciais'     => avisoIniciais($nome),
+      'imagem'       => $c['imagem'],
+      'emoji'        => $c['emoji'],
+      'link'         => 'curso.php?id=' . rawurlencode($c['slug'] !== '' ? $c['slug'] : $c['id']),
     ];
   }
 

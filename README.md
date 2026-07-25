@@ -206,16 +206,23 @@ SP, se matriculou no curso EJA Ensino Médio"* — para o visitante ver que outr
 pessoas estão comprando. Vale na home e na página do curso.
 
 Os nomes vêm da coleção **`site_alunos_inscricoes_especiais`** do Directus (uma
-linha por inscrição: `nome`, `curso`, `cidade`, `estado`, `data_hora`). O site lê
-as **60 mais recentes**, monta a lista em `api/avisos.php` (com o mesmo cache de
-10 minutos do catálogo) e o `assets/js/avisos.js` faz o rodízio. Cada visitante
+linha por inscrição: `nome`, `curso`, `id_curso`, `cidade`, `estado`,
+`visto_por_ultimo`). O `api/avisos.php` monta a lista — com o mesmo cache de 10
+minutos do catálogo — e o `assets/js/avisos.js` faz o rodízio. Cada visitante
 começa num ponto diferente da lista, então dois visitantes não veem a mesma
 sequência. O nome da tabela sai da chave `site_alunos_inscricoes_especiais` da
 `site_configuracoes` — trocar a tabela não exige mexer no código.
 
-Quando o curso da inscrição existe no catálogo, o balão ganha a **capa (ou o
-emoji) do curso** e vira link para a página de conversão dele. Sem
-correspondência, mostra as iniciais do aluno e não leva a lugar nenhum.
+**Só aparece curso à venda.** O `id_curso` da inscrição é conferido contra o
+catálogo do site (que já vem sem os cursos desativados no AVASET): id que não
+está lá — curso desligado, combo que saiu de linha — some do rodízio sozinho.
+Como a tabela tem milhares de linhas, o site sorteia uma **janela de 60** a cada
+vez que o cache vence, em vez de repetir sempre as mesmas pessoas.
+
+Casado o `id_curso`, o balão ganha a **capa (ou o emoji) do curso** e vira link
+para a página de conversão dele. O nome mostrado é o que está escrito na
+inscrição — normalmente mais específico, como "EJA Ensino Médio + Técnico em
+Estética".
 
 **O texto é escrito no painel**, na `site_configuracoes`:
 
@@ -230,9 +237,9 @@ correspondência, mostra as iniciais do aluno e não leva a lugar nenhum.
 | `aviso_duracao_segundos` | `7` | tempo que cada um fica na tela |
 
 Marcadores aceitos nos dois textos: `{nome}`, `{primeiro_nome}`, `{curso}`,
-`{cidade}`, `{estado}` e `{quando}` (tempo relativo calculado do `data_hora`:
-"há 20 minutos", "ontem", "há 2 meses"). O que estiver *entre asteriscos* sai em
-**negrito**. Quem escreve escolhe o verbo — "comprou", "se matriculou",
+`{cidade}`, `{estado}` e `{quando}` — este último é a coluna `visto_por_ultimo`
+copiada como está ("20 minutos atrás", "1:20 hora atrás"), sem o site recalcular
+nada. O que estiver *entre asteriscos* sai em **negrito**. Quem escreve escolhe o verbo — "comprou", "se matriculou",
 "garantiu a vaga".
 
 > O balão não aparece com a aba em segundo plano e some de vez se o visitante
