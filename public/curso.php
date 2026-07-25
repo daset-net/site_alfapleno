@@ -181,7 +181,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
             <li><i class="ri-check-line"></i> Tutoria durante todo o curso</li>
             <li><i class="ri-check-line"></i> Acesso imediato após a matrícula</li>
           </ul>
-          <p class="oferta__nota">Condição válida para as matrículas desta turma. Consulte o consultor antes de fechar.</p>
+          <p class="oferta__nota">Condição válida para as matrículas desta turma.</p>
         </div>
       </aside>
     </div>
@@ -454,7 +454,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
         </details>
         <details>
           <summary>Como funciona o pagamento?</summary>
-          <p><?= $curso['parcelas'] ? 'Você paga em ' . (int) $curso['parcelas'] . 'x de R$ ' . e($curso['preco']) . '.' : 'O consultor apresenta as formas de pagamento disponíveis.' ?> Não há taxa de matrícula, e o consultor confirma todas as condições com você antes de fechar.</p>
+          <p><?= $curso['parcelas'] ? 'Você paga em ' . (int) $curso['parcelas'] . 'x de R$ ' . e($curso['preco']) . '.' : 'O consultor apresenta as formas de pagamento disponíveis.' ?> Não há taxa de matrícula: o valor da parcela é tudo o que você paga.</p>
         </details>
         <details>
           <summary>Quando começo a estudar?</summary>

@@ -461,7 +461,20 @@ function chaveNome(string $nome): array {
 function mesmoCurso(string $a, string $b): bool {
   $pa = chaveNome($a);
   $pb = chaveNome($b);
-  return $pa !== [] && $pa === $pb;
+  if ($pa === [] || count($pa) !== count($pb)) return false;
+  if ($pa === $pb) return true;
+
+  // As duas tabelas escrevem o mesmo curso de jeitos um pouco diferentes
+  // ("Design Gráfico" e "Designer Gráfico"): aceita quando uma palavra é o
+  // começo da outra. Troca de letra no meio não vale — "eletromecanica" e
+  // "eletrotecnica" são cursos diferentes.
+  foreach ($pa as $i => $palavra) {
+    if ($palavra === $pb[$i]) continue;
+    $curta = strlen($palavra) < strlen($pb[$i]) ? $palavra : $pb[$i];
+    $longa = strlen($palavra) < strlen($pb[$i]) ? $pb[$i] : $palavra;
+    if (strlen($curta) < 5 || strncmp($curta, $longa, strlen($curta)) !== 0) return false;
+  }
+  return true;
 }
 
 /** Pacotes antigos gravaram a matéria toda em minúsculas ("telemarketing"). */
