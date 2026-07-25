@@ -11,6 +11,26 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  // Gente vendo o curso agora — número real, vindo dos pings do servidor.
+  // Só aparece a partir de 2 pessoas: "1 pessoa vendo" não diz nada.
+  var online = document.getElementById('online');
+  if (online) {
+    var pingar = function () {
+      fetch('api/online.php?curso=' + encodeURIComponent(online.dataset.curso))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var n = d && d.online ? d.online : 0;
+          if (n < 2) { online.hidden = true; return; }
+          document.getElementById('online-texto').textContent =
+            n + ' pessoas vendo este curso agora';
+          online.hidden = false;
+        })
+        .catch(function () { online.hidden = true; });
+    };
+    pingar();
+    setInterval(pingar, 60000);
+  }
+
   // Contador da oferta. O prazo vem do servidor (fim do ciclo da campanha) e não
   // reinicia a cada visita: quando zera, o preço muda mesmo.
   var contador = document.querySelector('.contador');

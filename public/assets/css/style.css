@@ -704,6 +704,20 @@ ul { list-style: none; }
 .contador__nota { font-size: 12px; color: var(--muted); margin-top: 10px; }
 .contador--fim { opacity: .6; }
 
+/* ---- gente vendo agora ---- */
+.online {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--muted); margin: -6px 0 14px;
+}
+.online__ponto {
+  width: 8px; height: 8px; border-radius: 50%; background: #16a34a;
+  box-shadow: 0 0 0 0 rgba(22,163,74,.5); animation: pulso 2s infinite;
+}
+@keyframes pulso {
+  70%  { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+
 /* ---- formulário de matrícula (página do curso) ---- */
 .form-etapa {
   font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;

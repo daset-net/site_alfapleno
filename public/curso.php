@@ -163,6 +163,11 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
           </div>
           <?php endif; ?>
 
+          <p class="online" id="online" data-curso="<?= e($curso['id']) ?>" hidden>
+            <span class="online__ponto"></span>
+            <span id="online-texto"></span>
+          </p>
+
           <a href="#matricula" class="btn btn-primary oferta__btn">Quero me matricular <i class="ri-arrow-right-line"></i></a>
 
           <ul class="oferta__lista">
