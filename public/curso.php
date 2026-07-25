@@ -40,6 +40,10 @@ $metaDescricao = $curso['seoDescricao'] !== ''
   ? $curso['seoDescricao']
   : $conteudo['chamada'] . '. ' . $curso['descricao'];
 
+// Grade do curso (ava_pacote_curso): as matérias que o aluno vai estudar.
+$materias = materiasDoCurso($curso);
+$diasGrade = array_sum(array_column($materias, 'dias'));
+
 $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   . rawurlencode('Olá! Quero saber mais sobre o curso ' . $curso['nome'] . '.');
 ?>
@@ -79,6 +83,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
       </a>
       <nav class="nav">
         <a href="index.php">Início</a>
+        <?php if ($materias): ?><a href="#grade">Matérias</a><?php endif; ?>
         <a href="index.php#cursos">Cursos</a>
         <a href="index.php#diferenciais">Diferenciais</a>
         <a href="index.php#contato">Contato</a>
@@ -219,6 +224,37 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
       </div>
     </div>
   </section>
+
+  <!-- ===================== GRADE ===================== -->
+  <?php if ($materias): ?>
+  <section class="section section--soft" id="grade">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Grade curricular</span>
+        <h2>As matérias que você <span class="gradient-text">vai estudar</span></h2>
+        <p>
+          <?= count($materias) ?> matéria<?= count($materias) > 1 ? 's' : '' ?> na plataforma,
+          <?php if ($diasGrade > 0): ?>
+            com <?= (int) $diasGrade ?> dias de acesso somados —
+          <?php endif; ?>
+          liberadas na ordem, para você avançar sem se perder.
+        </p>
+      </div>
+
+      <ol class="grade-lista">
+        <?php foreach ($materias as $i => $m): ?>
+          <li>
+            <span class="grade-lista__n"><?= str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) ?></span>
+            <div>
+              <strong><?= e($m['nome']) ?></strong>
+              <?php if ($m['dias'] > 0): ?><small><?= (int) $m['dias'] ?> dias</small><?php endif; ?>
+            </div>
+          </li>
+        <?php endforeach; ?>
+      </ol>
+    </div>
+  </section>
+  <?php endif; ?>
 
   <!-- ===================== INCLUSO ===================== -->
   <section class="section section--soft">

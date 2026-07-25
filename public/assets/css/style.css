@@ -1067,6 +1067,33 @@ ul { list-style: none; }
 .barra-matricula small { display: block; font-size: 12px; color: var(--muted); }
 .barra-matricula strong { font-size: 21px; color: var(--navy-700); }
 
+/* --- Grade curricular (matérias do pacote) -------------------------------- */
+.grade-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  counter-reset: materia;
+}
+.grade-lista li {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.grade-lista__n {
+  flex: 0 0 auto;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  background: var(--bg-softer);
+  color: var(--blue-500);
+  font-size: 13px; font-weight: 700;
+}
+.grade-lista li strong { display: block; font-size: 15px; font-weight: 600; line-height: 1.35; }
+.grade-lista li small { font-size: 12px; color: var(--muted); }
+
 /* --- Balão de prova social (quem acabou de se matricular) ----------------- */
 .aviso-pop {
   position: fixed;

@@ -11,9 +11,10 @@
 //   TOKEN_DIRECTUS_CONFIGURACOES = <token estático do Directus>
 // (também aceita DIRECTUS_URL / DIRECTUS_TOKEN)
 
-const COL_PRECOS = 'ava_catalogo_curso';
-const COL_CURSOS = 'site_catalogo_cursos';
-const COL_CONFIG = 'site_configuracoes';
+const COL_PRECOS  = 'ava_catalogo_curso';
+const COL_CURSOS  = 'site_catalogo_cursos';
+const COL_CONFIG  = 'site_configuracoes';
+const COL_PACOTE  = 'ava_pacote_curso';   // grade curricular (uma linha por matéria)
 
 const CACHE_TTL    = 600; // segundos
 const HTTP_TIMEOUT = 8;
@@ -124,7 +125,7 @@ function caminhoCache(string $nome = 'catalogo'): string {
 
 /** Invalida o cache para que uma edição no Directus apareça no site na hora. */
 function limparCache(): void {
-  foreach (['catalogo', 'config', 'avisos'] as $nome) {
+  foreach (['catalogo', 'config', 'avisos', 'materias'] as $nome) {
     @unlink(caminhoCache($nome));
   }
 }
@@ -194,6 +195,20 @@ function urlImagem(?string $uuid): string {
 
 // ---------------------------------------------------------------- oferta do ciclo
 /**
+ * Linha de BOLSA do catálogo — não pode ser anunciada nem vendida pelo site.
+ *
+ * Bolsa é concessão da escola, decidida caso a caso no GESET, e o próprio
+ * endpoint de matrícula externa do AVASET recusa desconto de 60% ou mais vindo
+ * de fora. Anunciar esse preço seria prometer o que a matrícula não entrega,
+ * então ele é descartado antes de qualquer cálculo: nem vitrine, nem contador,
+ * nem formulário.
+ */
+function ehBolsa(array $linha): bool {
+  if (strtolower(trim((string) ($linha['ingresso'] ?? ''))) === 'bolsa') return true;
+  return (float) ($linha['desconto'] ?? 0) >= 60;
+}
+
+/**
  * Ciclo da campanha: o desconto anunciado vale por um período fechado e muda
  * quando o período vira. O contador na página aponta para esse fim — quando ele
  * zera, o preço realmente muda, então não há prazo de mentira.
@@ -231,6 +246,7 @@ function ofertaDoCiclo(array $versoes): ?array {
   foreach ($versoes as $v) {
     if (($v['ativo'] ?? true) === false) continue;
     if ((float) ($v['valor_parcela'] ?? 0) <= 0) continue;
+    if (ehBolsa($v)) continue;   // bolsa não é oferta de site
     $ativas[] = $v;
   }
   if (!$ativas) return null;
@@ -409,12 +425,117 @@ function planoVigente(string $idCurso): ?array {
 
   $linhas = buscarColecao(COL_PRECOS, [
     'filter' => ['id_curso' => ['_eq' => $idCurso]],
-    'fields' => 'id_curso,curso,categoria,id_unico,desconto,qtd_parcela,'
+    'fields' => 'id_curso,curso,categoria,id_unico,ingresso,desconto,qtd_parcela,'
               . 'valor_parcela,valor_parcela_normal,valor_total,valor_total_normal,ativo',
   ]);
   if (!$linhas) return null;
 
   return ofertaDoCiclo($linhas);
+}
+
+// ---------------------------------------------------------------- grade curricular
+/** Nome reduzido ao essencial, para comparar catálogo e pacote sem tropeçar em acento. */
+function chaveNome(string $nome): array {
+  $n = mb_strtolower($nome, 'UTF-8');
+  $n = strtr($n, [
+    'á'=>'a','à'=>'a','ã'=>'a','â'=>'a','ä'=>'a','é'=>'e','ê'=>'e','è'=>'e',
+    'í'=>'i','ì'=>'i','î'=>'i','ó'=>'o','ô'=>'o','õ'=>'o','ò'=>'o','ö'=>'o',
+    'ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u','ç'=>'c',
+  ]);
+  $n = preg_replace('/[^a-z0-9\s]/', ' ', $n);
+
+  // Palavras que não distinguem um curso do outro.
+  $ruido = ['curso','cursos','tecnico','tecnica','tecnologia','profissional',
+            'online','ead','em','de','do','da','das','dos','e','o','a'];
+  $palavras = array_diff(preg_split('/\s+/', trim($n)) ?: [], $ruido);
+  sort($palavras);
+  return array_values(array_filter($palavras, fn($p) => $p !== ''));
+}
+
+/**
+ * O mesmo id_curso aponta para cursos diferentes nas duas tabelas em alguns
+ * casos (CT008 é Meio Ambiente no catálogo e Estética no pacote). Antes de
+ * mostrar a grade, confere se os nomes falam do mesmo curso — na dúvida, o site
+ * prefere não mostrar matéria nenhuma a mostrar a do curso errado.
+ */
+function mesmoCurso(string $a, string $b): bool {
+  $pa = chaveNome($a);
+  $pb = chaveNome($b);
+  return $pa !== [] && $pa === $pb;
+}
+
+/** Pacotes antigos gravaram a matéria toda em minúsculas ("telemarketing"). */
+function nomeMateria(string $nome): string {
+  if ($nome !== mb_strtolower($nome, 'UTF-8')) return $nome; // já veio escrito direito
+
+  $titulo = mb_convert_case($nome, MB_CASE_TITLE, 'UTF-8');
+  return preg_replace_callback(
+    '/\b(De|Do|Da|Dos|Das|E|Em|A|O|Para|Com)\b/u',
+    fn($m) => mb_strtolower($m[1], 'UTF-8'),
+    $titulo
+  );
+}
+
+/** Grade de todos os cursos (id_curso => [nome_curso, materias]), com cache. */
+function gradesPorCurso(): array {
+  static $mapa = null;
+  if ($mapa !== null) return $mapa;
+
+  $cache = caminhoCache('materias');
+  if (is_readable($cache) && (time() - filemtime($cache) < CACHE_TTL)) {
+    $mapa = json_decode((string) file_get_contents($cache), true);
+    if (is_array($mapa)) return $mapa;
+  }
+
+  $linhas = buscarColecao(COL_PACOTE, [
+    'fields' => 'id_curso,nome_curso,nome_materia,ordem_materia,dias_materia',
+    'sort'   => 'id_curso,ordem_materia',
+  ]);
+
+  if ($linhas === null) {
+    $mapa = is_readable($cache) ? json_decode((string) file_get_contents($cache), true) : [];
+    return $mapa = is_array($mapa) ? $mapa : [];
+  }
+
+  $mapa = [];
+  foreach ($linhas as $l) {
+    $id      = strtoupper(trim((string) ($l['id_curso'] ?? '')));
+    $materia = trim((string) ($l['nome_materia'] ?? ''));
+    if ($id === '' || $materia === '') continue;
+
+    if (!isset($mapa[$id])) $mapa[$id] = ['nome' => trim((string) ($l['nome_curso'] ?? '')), 'materias' => []];
+
+    // A mesma matéria aparece repetida quando o pacote foi remontado.
+    foreach ($mapa[$id]['materias'] as $m) {
+      if (mb_strtolower($m['nome'], 'UTF-8') === mb_strtolower($materia, 'UTF-8')) continue 2;
+    }
+    $mapa[$id]['materias'][] = [
+      'nome' => nomeMateria($materia),
+      'dias' => (int) ($l['dias_materia'] ?? 0),
+    ];
+  }
+
+  @file_put_contents($cache, json_encode($mapa, JSON_UNESCAPED_UNICODE));
+  return $mapa;
+}
+
+/**
+ * Matérias do curso, na ordem em que o aluno estuda.
+ * Vazio quando o pacote não tem grade ou quando o id aponta para outro curso.
+ */
+function materiasDoCurso(array $curso): array {
+  $grades = gradesPorCurso();
+
+  // Caminho normal: mesmo id nas duas tabelas, confirmado pelo nome.
+  $grade = $grades[strtoupper($curso['id'])] ?? null;
+  if ($grade && mesmoCurso($curso['nome'], $grade['nome'])) return $grade['materias'];
+
+  // Pacotes antigos guardam outro id (numérico, ou trocado entre cursos):
+  // aí vale o nome, que é o que o aluno vê.
+  foreach ($grades as $g) {
+    if (mesmoCurso($curso['nome'], $g['nome'])) return $g['materias'];
+  }
+  return [];
 }
 
 /** Um curso do catálogo pelo id_curso (ex.: CT005) ou pelo slug. */

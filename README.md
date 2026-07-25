@@ -13,8 +13,9 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
 - **Conteúdo editável no Directus**: textos, imagens de capa, contatos e SEO são
   administrados nas coleções do site — sem precisar mexer no código.
 - **Página de conversão por curso** (`/curso.php?id=tecnico-em-administracao`):
-  argumento de matrícula, grade, público, saídas profissionais, oferta com
-  desconto, FAQ e formulário. Aceita o slug ou o código do curso.
+  argumento de matrícula, **grade curricular vinda da plataforma**, público,
+  saídas profissionais, oferta com desconto, FAQ e formulário. Aceita o slug ou
+  o código do curso.
 - **Matrícula online** na própria página do curso: o aluno preenche os dados e a
   matrícula é criada no AVASET na hora, com número e credenciais na tela.
 - **API PHP** para catálogo (`/api/cursos.php`), matrícula (`/api/matricula.php`)
@@ -120,6 +121,7 @@ Três coleções, com papéis bem separados:
 | `ava_catalogo_curso` | **Preço + quais cursos existem.** Fonte única de valores, parcelas e descontos. O campo `ativo` liga/desliga o curso (controlado no painel do AVASET). |
 | `site_catalogo_cursos` | **Camada editorial (opcional).** Imagem de capa, textos, slug e ordem de cada curso. |
 | `site_configuracoes` | **Configurações gerais.** Contato, redes sociais, textos da home, números e SEO. |
+| `ava_pacote_curso` | **Grade curricular.** Uma linha por matéria do curso (veja *Grade curricular*). |
 | `site_alunos_inscricoes_especiais` | **Prova social.** Inscrições mostradas nos balões (veja *Balões de matrícula*). |
 
 > **Quais cursos aparecem no site:** todos os do `ava_catalogo_curso`, **menos os desativados**
@@ -176,10 +178,17 @@ curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://edualfa.com.br/api/purgar.p
 
 ## 🏷️ Oferta por ciclo
 
-O `ava_catalogo_curso` guarda a mesma matrícula em vários descontos
-(30/40/50/60%). O site não anuncia sempre o mesmo: `ofertaDoCiclo()` gira essa
-escada por períodos fechados — um ciclo em 60%, o seguinte em 50%, o outro em
-40% — e todos os cursos giram juntos, como uma campanha só.
+O `ava_catalogo_curso` guarda a mesma matrícula em vários descontos. O site não
+anuncia sempre o mesmo: `ofertaDoCiclo()` gira essa escada por períodos fechados
+— um ciclo em 50%, o seguinte em 40%, o outro em 30% — e todos os cursos giram
+juntos, como uma campanha só.
+
+> **Bolsa nunca aparece.** As linhas de `ingresso = bolsa` (hoje, os 60%) são
+> descartadas em `ehBolsa()` antes de qualquer cálculo: não entram na vitrine,
+> no contador nem no formulário. Bolsa é concessão da escola, decidida caso a
+> caso no GESET, e o endpoint de matrícula externa do AVASET recusa desconto de
+> 60% ou mais vindo de fora — anunciar esse preço seria prometer o que a
+> matrícula não entrega.
 
 A página do curso mostra o preço cheio riscado, a economia por parcela e um
 **contador para o fim do ciclo**. O prazo é real: quando ele zera, o preço muda
@@ -193,11 +202,25 @@ Ajustes na `site_configuracoes`:
 | chave | padrão | efeito |
 |---|---|---|
 | `oferta_modo` | `rotativo` | `fixo` trava no maior desconto disponível |
-| `oferta_niveis` | `3` | quantos degraus entram na rotação (3 = 60/50/40) |
+| `oferta_niveis` | `3` | quantos degraus entram na rotação (3 = 50/40/30) |
 | `oferta_ciclo_dias` | `7` | duração do ciclo |
 | `oferta_offset` | `0` | desloca a rotação, para escolher em que degrau ela começa |
 
 Os ciclos sempre começam numa segunda-feira, no fuso `America/Fortaleza`.
+
+## 📚 Grade curricular
+
+A página do curso lista as **matérias de verdade**, puxadas da coleção
+`ava_pacote_curso` (a mesma que monta o curso na plataforma): nome, ordem e
+dias de acesso de cada uma. Nada é digitado à mão — mudou a grade no AVASET,
+muda no site na próxima leitura (cache de 10 minutos).
+
+O elo é o `id_curso`, **conferido pelo nome**: em alguns pacotes antigos o
+mesmo código aponta para cursos diferentes nas duas tabelas (`CT008` é Meio
+Ambiente no catálogo e Estética no pacote). Se os nomes não baterem,
+`materiasDoCurso()` procura a grade pelo nome do curso; não achando, a seção
+simplesmente não aparece — melhor não mostrar matéria nenhuma do que mostrar a
+do curso errado.
 
 ## 🔔 Balões de matrícula (prova social)
 
