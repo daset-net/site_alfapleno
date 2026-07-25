@@ -169,6 +169,31 @@ curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://edualfa.com.br/api/purgar.p
 > O cache é um arquivo no disco do contêiner: com mais de uma réplica, a purga
 > atinge só a réplica que atendeu a chamada.
 
+## 🏷️ Oferta por ciclo
+
+O `ava_catalogo_curso` guarda a mesma matrícula em vários descontos
+(30/40/50/60%). O site não anuncia sempre o mesmo: `ofertaDoCiclo()` gira essa
+escada por períodos fechados — um ciclo em 60%, o seguinte em 50%, o outro em
+40% — e todos os cursos giram juntos, como uma campanha só.
+
+A página do curso mostra o preço cheio riscado, a economia por parcela e um
+**contador para o fim do ciclo**. O prazo é real: quando ele zera, o preço muda
+de fato, então nada de contador que reinicia a cada visita.
+
+A mesma função decide a vitrine e a matrícula (`planoVigente()` chama
+`ofertaDoCiclo()`), então **o preço exibido é sempre o preço gravado**.
+
+Ajustes na `site_configuracoes`:
+
+| chave | padrão | efeito |
+|---|---|---|
+| `oferta_modo` | `rotativo` | `fixo` trava no maior desconto disponível |
+| `oferta_niveis` | `3` | quantos degraus entram na rotação (3 = 60/50/40) |
+| `oferta_ciclo_dias` | `7` | duração do ciclo |
+| `oferta_offset` | `0` | desloca a rotação, para escolher em que degrau ela começa |
+
+Os ciclos sempre começam numa segunda-feira, no fuso `America/Fortaleza`.
+
 ## 🎓 Matrícula online
 
 A página do curso matricula de verdade: o formulário grava o aluno no AVASET da
