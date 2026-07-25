@@ -15,7 +15,10 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
 - **Página de conversão por curso** (`/curso.php?id=tecnico-em-administracao`):
   argumento de matrícula, grade, público, saídas profissionais, oferta com
   desconto, FAQ e formulário. Aceita o slug ou o código do curso.
-- **API PHP** para catálogo (`/api/cursos.php`) e formulário de contato/matrícula (`/api/contato.php`).
+- **Matrícula online** na própria página do curso: o aluno preenche os dados e a
+  matrícula é criada no AVASET na hora, com número e credenciais na tela.
+- **API PHP** para catálogo (`/api/cursos.php`), matrícula (`/api/matricula.php`)
+  e formulário de contato (`/api/contato.php`).
 - **Painel próprio** em `/admin`, com o **mesmo login do `ead.edualfa.com.br`**
   (sem cadastro nem senha separada), para trocar capas e editar textos.
 - **Leads** salvos em CSV persistente (`data/leads.csv`).
@@ -53,6 +56,7 @@ site_edualfa/
 │       ├── cursos.php      # catálogo em JSON
 │       ├── imagem.php      # proxy das capas do Directus (não expõe o token)
 │       ├── purgar.php      # limpa o cache sob demanda (chamado pelo AVASET)
+│       ├── matricula.php   # matrícula online → AVASET (assina com o token)
 │       └── contato.php     # recebe leads → data/leads.csv
 └── README.md
 ```
@@ -70,6 +74,7 @@ site_edualfa/
    DIRECTUS_URL=https://cloud.edualfa.com.br
    DIRECTUS_TOKEN=<token estático do Directus>
    TOKEN_PURGA_SITE=<segredo compartilhado com o AVASET>
+   TOKEN_MATRICULA_EXTERNA=<mesmo api_token_matricula_externa do AVASET>
    ```
 
    O `TOKEN_PURGA_SITE` é opcional: sem ele, `api/purgar.php` responde 503 e o
@@ -163,6 +168,41 @@ curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://edualfa.com.br/api/purgar.p
 
 > O cache é um arquivo no disco do contêiner: com mais de uma réplica, a purga
 > atinge só a réplica que atendeu a chamada.
+
+## 🎓 Matrícula online
+
+A página do curso matricula de verdade: o formulário grava o aluno no AVASET da
+EDUALFA, no mesmo lugar em que caem as matrículas do GESET.
+
+```
+navegador → /api/matricula.php → ead.edualfa.com.br/api/matricula_externa.php → Directus
+```
+
+O que o site faz antes de repassar:
+
+- **Preço e plano não vêm do navegador.** `planoVigente()` lê o
+  `ava_catalogo_curso` na hora e usa a versão ativa de menor parcela — a mesma
+  oferta exibida no card. Curso desativado no GESET recusa a matrícula.
+- **Valida** nome, CPF (dígitos verificadores), nascimento, e-mail, WhatsApp,
+  sexo e endereço completo. Menor de 18 anos só passa com nome e CPF do
+  responsável financeiro.
+- **Antisspam**: campo-armadilha escondido e limite de 5 envios por IP a cada 15
+  minutos (`data/matriculas_ip.json`).
+- **Afiliado**: se o visitante chegou por `?af=email@dominio`, o e-mail fica num
+  cookie por 30 dias e vai no payload — o AVASET calcula a comissão pela
+  categoria. Sem isso, é venda direta (`origem = Site`).
+
+A matrícula nasce como no painel: `financeiro=aguardando`, `acesso=BLOQUEADO`,
+`contrato=pendente`, usuário = CPF e senha inicial = data de nascimento (com
+troca obrigatória no primeiro login). O aluno vê o número da matrícula e essas
+credenciais na tela de sucesso. **Modalidade BOLSA não é oferecida no site** — o
+próprio endpoint do AVASET recusa desconto ≥ 60% vindo de fora.
+
+Configuração: `TOKEN_MATRICULA_EXTERNA` no site (EasyPanel) e a chave
+`api_token_matricula_externa` na `avaset_configuracoes` do Directus, com o mesmo
+valor. Sem o token, o formulário responde que a matrícula online está
+indisponível e orienta o WhatsApp. Para apontar para outro ambiente, use
+`AVASET_MATRICULA_URL` (padrão: `https://ead.edualfa.com.br/api/matricula_externa.php`).
 
 ### Imagens
 

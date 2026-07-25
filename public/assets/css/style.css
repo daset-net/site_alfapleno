@@ -685,6 +685,45 @@ ul { list-style: none; }
 .form-alert.ok { background: #e6f9ef; color: #0f7a44; }
 .form-alert.err { background: #fdecec; color: #c0392b; }
 
+/* ---- formulário de matrícula (página do curso) ---- */
+.form-etapa {
+  font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--blue-500); margin: 4px 0 16px;
+}
+.form-etapa + .field, .form-etapa + .form-linha { margin-top: 0; }
+.form-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.campo-armadilha { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-nota--esq { text-align: left; margin-bottom: 16px; }
+
+.resumo-matricula {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 18px; font-size: 14px;
+}
+.resumo-matricula strong { font-size: 16px; color: var(--blue-500); white-space: nowrap; }
+
+.matricula-sucesso {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: 36px; box-shadow: var(--shadow-md); text-align: center;
+}
+.matricula-sucesso__selo {
+  width: 62px; height: 62px; margin: 0 auto 18px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 30px; color: #0f7a44; background: #e6f9ef;
+}
+.matricula-sucesso h3 { font-size: 24px; margin-bottom: 10px; }
+.matricula-sucesso__dados {
+  display: grid; gap: 10px; text-align: left;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px; margin: 22px 0 18px;
+}
+.matricula-sucesso__dados div { display: flex; justify-content: space-between; gap: 12px; }
+.matricula-sucesso__dados span { font-size: 14px; color: var(--muted); }
+.matricula-sucesso__dados strong { font-size: 15px; letter-spacing: .5px; }
+
+@media (max-width: 560px) {
+  .form-linha { grid-template-columns: 1fr; }
+}
+
 /* ==========================================================================
    FOOTER
    ========================================================================== */

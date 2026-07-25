@@ -331,6 +331,35 @@ function catalogo(): array {
   return [[], 'indisponivel'];
 }
 
+/**
+ * Linha bruta do ava_catalogo_curso que a matrícula deve usar: a versão ativa
+ * com a menor parcela — a mesma oferta que o site exibe no card.
+ *
+ * Vai direto ao Directus (sem cache) e devolve os valores originais, não os
+ * formatados. É a fonte do preço na hora de matricular: nada de financeiro
+ * chega pelo navegador, então adulterar o formulário não muda o que é gravado.
+ * Devolve null se o curso não existe ou está desativado no AVASET.
+ */
+function planoVigente(string $idCurso): ?array {
+  if ($idCurso === '') return null;
+
+  $linhas = buscarColecao(COL_PRECOS, [
+    'filter' => ['id_curso' => ['_eq' => $idCurso]],
+    'fields' => 'id_curso,curso,categoria,id_unico,desconto,qtd_parcela,'
+              . 'valor_parcela,valor_parcela_normal,valor_total,valor_total_normal,ativo',
+  ]);
+  if (!$linhas) return null;
+
+  $melhor = null;
+  foreach ($linhas as $l) {
+    if (($l['ativo'] ?? true) === false) continue;
+    $parcela = (float) ($l['valor_parcela'] ?? 0);
+    if ($parcela <= 0) continue;
+    if ($melhor === null || $parcela < (float) $melhor['valor_parcela']) $melhor = $l;
+  }
+  return $melhor;
+}
+
 /** Um curso do catálogo pelo id_curso (ex.: CT005) ou pelo slug. */
 function cursoPorId(string $chave): ?array {
   [$cursos] = catalogo();

@@ -249,42 +249,128 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
       <div class="contact-info">
         <span class="eyebrow" style="display:inline-block;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue-500);background:#fff;padding:6px 16px;border-radius:100px;margin-bottom:16px">Matrícula</span>
         <h2>Comece <span class="gradient-text">hoje</span> — a vaga é sua</h2>
-        <p>Preencha os dados e um consultor entra em contato para confirmar a condição de <strong>R$ <?= e($curso['preco']) ?><?= $curso['parcelas'] ? ' em ' . (int) $curso['parcelas'] . 'x' : '' ?></strong> e concluir sua matrícula em <strong><?= e($curso['nome']) ?></strong>.</p>
+        <p>Preencha seus dados e conclua a matrícula em <strong><?= e($curso['nome']) ?></strong> agora, na condição de <strong>R$ <?= e($curso['preco']) ?><?= $curso['parcelas'] ? ' em ' . (int) $curso['parcelas'] . 'x' : '' ?></strong>. Ao final você já recebe o número da matrícula e os dados de acesso à plataforma.</p>
 
         <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span><?= e(config('telefone_exibicao', '(00) 00000-0000')) ?></span></div></div>
         <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@edualfa.com.br')) ?></span></div></div>
         <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span><?= e(config('horario_atendimento', 'Segunda a sexta, das 8h às 18h')) ?></span></div></div>
       </div>
 
-      <form class="contact-form" id="form-matricula"
-            data-curso="<?= e($curso['nome']) ?> (<?= e($curso['codigo']) ?>)">
+      <form class="contact-form" id="form-matricula" data-curso="<?= e($curso['id']) ?>" novalidate>
         <div class="form-alert" id="form-alerta" hidden></div>
 
+        <p class="form-etapa">1. Seus dados</p>
         <div class="field">
-          <label>Nome completo</label>
-          <input type="text" name="nome" placeholder="Seu nome" required>
+          <label for="mat-nome">Nome completo</label>
+          <input type="text" id="mat-nome" name="nome" placeholder="Como está no documento" autocomplete="name" required>
+        </div>
+        <div class="form-linha">
+          <div class="field">
+            <label for="mat-cpf">CPF</label>
+            <input type="tel" id="mat-cpf" name="cpf" placeholder="000.000.000-00" inputmode="numeric" required>
+          </div>
+          <div class="field">
+            <label for="mat-nascimento">Nascimento</label>
+            <input type="tel" id="mat-nascimento" name="nascimento" placeholder="DD/MM/AAAA" inputmode="numeric" required>
+          </div>
+        </div>
+        <div class="form-linha">
+          <div class="field">
+            <label for="mat-sexo">Sexo</label>
+            <select id="mat-sexo" name="sexo" required>
+              <option value="">Selecione</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="mat-celular">WhatsApp</label>
+            <input type="tel" id="mat-celular" name="celular" placeholder="(00) 00000-0000" autocomplete="tel" required>
+          </div>
         </div>
         <div class="field">
-          <label>E-mail</label>
-          <input type="email" name="email" placeholder="voce@email.com" required>
+          <label for="mat-email">E-mail</label>
+          <input type="email" id="mat-email" name="email" placeholder="voce@email.com" autocomplete="email" required>
+        </div>
+
+        <p class="form-etapa">2. Endereço</p>
+        <div class="form-linha">
+          <div class="field">
+            <label for="mat-cep">CEP</label>
+            <input type="tel" id="mat-cep" name="cep" placeholder="00000-000" inputmode="numeric" autocomplete="postal-code" required>
+          </div>
+          <div class="field">
+            <label for="mat-numero">Número</label>
+            <input type="text" id="mat-numero" name="numero" placeholder="123" required>
+          </div>
         </div>
         <div class="field">
-          <label>WhatsApp</label>
-          <input type="tel" name="telefone" placeholder="(00) 00000-0000" required>
+          <label for="mat-endereco">Endereço</label>
+          <input type="text" id="mat-endereco" name="endereco" placeholder="Rua, avenida…" autocomplete="address-line1" required>
         </div>
-        <div class="field">
-          <label>Curso escolhido</label>
-          <input type="text" value="<?= e($curso['nome']) ?>" readonly>
+        <div class="form-linha">
+          <div class="field">
+            <label for="mat-bairro">Bairro</label>
+            <input type="text" id="mat-bairro" name="bairro" required>
+          </div>
+          <div class="field">
+            <label for="mat-complemento">Complemento</label>
+            <input type="text" id="mat-complemento" name="complemento" placeholder="Opcional">
+          </div>
         </div>
-        <div class="field">
-          <label>Mensagem (opcional)</label>
-          <textarea name="mensagem" placeholder="Alguma dúvida antes de começar?"></textarea>
+        <div class="form-linha">
+          <div class="field">
+            <label for="mat-cidade">Cidade</label>
+            <input type="text" id="mat-cidade" name="cidade" required>
+          </div>
+          <div class="field">
+            <label for="mat-estado">UF</label>
+            <input type="text" id="mat-estado" name="estado" maxlength="2" placeholder="CE" required>
+          </div>
         </div>
+
+        <div id="bloco-responsavel" hidden>
+          <p class="form-etapa">3. Responsável financeiro</p>
+          <p class="form-nota form-nota--esq">Menores de 18 anos precisam de um responsável.</p>
+          <div class="field">
+            <label for="mat-resp-nome">Nome do responsável</label>
+            <input type="text" id="mat-resp-nome" name="nome_responsavel">
+          </div>
+          <div class="field">
+            <label for="mat-resp-cpf">CPF do responsável</label>
+            <input type="tel" id="mat-resp-cpf" name="cpf_responsavel" placeholder="000.000.000-00" inputmode="numeric">
+          </div>
+        </div>
+
+        <!-- armadilha anti-robô: fica escondida e deve continuar vazia -->
+        <div class="campo-armadilha" aria-hidden="true">
+          <label>Não preencha este campo</label>
+          <input type="text" name="site" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="resumo-matricula">
+          <span><?= e($curso['nome']) ?></span>
+          <strong><?= $curso['parcelas'] ? (int) $curso['parcelas'] . 'x de R$ ' . e($curso['preco']) : 'R$ ' . e($curso['preco']) ?></strong>
+        </div>
+
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">
-          Quero me matricular <i class="ri-send-plane-line"></i>
+          Concluir minha matrícula <i class="ri-send-plane-line"></i>
         </button>
-        <p class="form-nota">Seus dados são usados apenas para o contato da matrícula.</p>
+        <p class="form-nota">Sem taxa de matrícula. O primeiro boleto é enviado por e-mail e o acesso libera após a confirmação do pagamento.</p>
       </form>
+
+      <div class="matricula-sucesso" id="matricula-sucesso" hidden>
+        <div class="matricula-sucesso__selo"><i class="ri-check-line"></i></div>
+        <h3>Matrícula registrada!</h3>
+        <p>Bem-vindo(a) à EDUALFA, <strong id="suc-nome"></strong>. Sua matrícula em <strong id="suc-curso"></strong> foi criada.</p>
+        <div class="matricula-sucesso__dados">
+          <div><span>Número da matrícula</span><strong id="suc-numero"></strong></div>
+          <div><span>Usuário (CPF)</span><strong id="suc-usuario"></strong></div>
+          <div><span>Senha inicial</span><strong id="suc-senha"></strong></div>
+        </div>
+        <p class="form-nota form-nota--esq">Guarde esses dados. O acesso à plataforma é liberado assim que o pagamento da primeira parcela é confirmado — o boleto chega no seu e-mail. No primeiro login o sistema pede a troca da senha.</p>
+        <a id="suc-portal" class="btn btn-primary" href="https://ead.edualfa.com.br" target="_blank" rel="noopener">Ir para a plataforma <i class="ri-external-link-line"></i></a>
+      </div>
     </div>
   </section>
 
@@ -437,5 +523,6 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   </div>
 
 <script src="assets/js/curso.js"></script>
+<script src="assets/js/matricula.js"></script>
 </body>
 </html>

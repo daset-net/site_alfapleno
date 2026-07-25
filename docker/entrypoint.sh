@@ -14,7 +14,8 @@ ENV_OUT="/var/www/vhosts/localhost/.env"   # fora de html/ — não acessível p
 for VAR in API_TIPO \
            API_DIRECTUS_CONFIGURACOES TOKEN_DIRECTUS_CONFIGURACOES \
            DIRECTUS_URL DIRECTUS_TOKEN \
-           DIRECTUS_STORAGE TOKEN_PURGA_SITE; do
+           DIRECTUS_STORAGE TOKEN_PURGA_SITE \
+           TOKEN_MATRICULA_EXTERNA AVASET_MATRICULA_URL; do
   eval "VAL=\${$VAR:-}"
   if [ -n "$VAL" ]; then
     printf '%s=%s\n' "$VAR" "$VAL" >> "$ENV_OUT"
