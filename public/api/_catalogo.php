@@ -622,13 +622,15 @@ function cargaMinima(array $curso): int {
 
 /**
  * O curso técnico tem carga horária mínima definida no Catálogo Nacional de
- * Cursos Técnicos (Administração 800h, a maioria 1200h) e o site não pode
- * anunciar menos que isso. Quando a soma das matérias fica abaixo, as horas são
- * distribuídas proporcionalmente até passar um pouco do mínimo — a proporção
- * entre as matérias continua a mesma, e o total bate com a soma da lista.
+ * Cursos Técnicos (Administração 800h, a maioria 1200h), e é essa a carga que a
+ * escola certifica. O site anuncia sempre **um pouco acima** do mínimo: as horas
+ * contadas do conteúdo dão o peso relativo de cada matéria, e a lista é ajustada
+ * proporcionalmente até o total cair nesse alvo — para cima quando o conteúdo
+ * cadastrado é pouco, para baixo quando é muito.
  *
- * Curso que já soma mais que o mínimo fica como está: ninguém precisa inflar o
- * que já é grande.
+ * Assim a proporção entre as matérias continua sendo a do conteúdo real, o total
+ * bate com a soma da lista e nenhum curso anuncia carga diferente da que
+ * certifica. Curso sem mínimo definido (os livres) mostra a soma real.
  */
 function respeitarCargaMinima(array $materias, array $curso): array {
   $minima = cargaMinima($curso);
@@ -638,7 +640,7 @@ function respeitarCargaMinima(array $materias, array $curso): array {
   $alvo   = (int) (ceil($minima * (1 + $margem / 100) / 10) * 10);
 
   $soma = array_sum(array_column($materias, 'horas'));
-  if ($soma <= 0 || $soma >= $alvo) return $materias;
+  if ($soma <= 0 || $soma === $alvo) return $materias;
 
   $fator = $alvo / $soma;
   foreach ($materias as $i => $m) {

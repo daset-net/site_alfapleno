@@ -238,10 +238,14 @@ a maioria 1200h) e o site não pode anunciar menos. O mínimo de cada curso fica
 campo `carga_horaria_minima` da `site_catalogo_cursos`; sem ele, vale o padrão da
 modalidade (`carga_minima_tecnico`, `carga_minima_eja`, `carga_minima_livre`).
 
-Quando a soma das matérias fica **abaixo** do mínimo, as horas são distribuídas
-proporcionalmente até passar um pouco dele — `carga_margem_percentual` (padrão
-`5`) diz quanto. A proporção entre as matérias não muda e o total continua sendo
-a soma da lista. Curso que já soma mais que o mínimo fica como está.
+O site anuncia sempre **um pouco acima** do mínimo — `carga_margem_percentual`
+(padrão `5`) diz quanto. As horas contadas do conteúdo dão o **peso relativo** de
+cada matéria e a lista é ajustada proporcionalmente até o total cair nesse alvo:
+para cima quando o conteúdo cadastrado é pouco, para baixo quando é muito. A
+proporção entre as matérias não muda e o total continua sendo a soma da lista.
+
+Curso **livre** não tem mínimo legal (`carga_minima_livre = 0`): mostra a soma
+real, sem ajuste.
 
 > Enquanto as atividades não estiverem cadastradas no Directus da escola, quase
 > tudo cai no `carga_horaria_padrao`. Assim que elas entram, o número passa a
