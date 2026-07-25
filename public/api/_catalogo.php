@@ -14,7 +14,10 @@
 const COL_PRECOS  = 'ava_catalogo_curso';
 const COL_CURSOS  = 'site_catalogo_cursos';
 const COL_CONFIG  = 'site_configuracoes';
-const COL_PACOTE  = 'ava_pacote_curso';   // grade curricular (uma linha por matéria)
+const COL_PACOTE     = 'ava_pacote_curso';    // grade curricular (uma linha por matéria)
+const COL_EXERCICIOS = 'ava_pacote_materia';  // atividades da matéria (uma linha por questão)
+const COL_PROVAS     = 'ava_pacote_prova';    // prova final (uma linha por questão)
+const COL_ANEXOS     = 'ava_pacote_anexo';    // apostila e jornada em PDF
 
 const CACHE_TTL    = 600; // segundos
 const HTTP_TIMEOUT = 8;
@@ -489,6 +492,35 @@ function nomeMateria(string $nome): string {
   );
 }
 
+/** Quantas linhas cada matéria tem numa coleção (id_materia => total). */
+function contagemPorMateria(string $colecao): array {
+  $linhas = buscarColecao($colecao, ['aggregate' => ['count' => 'id'], 'groupBy' => 'id_materia']);
+  $mapa = [];
+  foreach ($linhas ?? [] as $l) {
+    $id = (string) ($l['id_materia'] ?? '');
+    if ($id === '') continue;
+    $mapa[$id] = (int) ($l['count']['id'] ?? 0);
+  }
+  return $mapa;
+}
+
+/**
+ * Carga horária aproximada de uma matéria, a partir do conteúdo cadastrado.
+ *
+ * A conta é a do painel (site_configuracoes): cada questão vale uma hora e traz
+ * uma vídeo-aula junto (mais uma), e a matéria ainda soma apostila, jornada e
+ * podcast. Matéria sem conteúdo cadastrado ainda cai no padrão, para a página
+ * não anunciar "0h" num curso que existe.
+ */
+function horasDaMateria(int $questoes, bool $apostila, bool $jornada): int {
+  if ($questoes <= 0) return max(0, (int) config('carga_horaria_padrao', '30'));
+
+  $horas = $questoes * ((int) config('carga_hora_questao', '1') + (int) config('carga_hora_videoaula', '1'));
+  if ($apostila) $horas += (int) config('carga_hora_apostila', '1');
+  if ($jornada)  $horas += (int) config('carga_hora_jornada', '1');
+  return max(0, $horas + (int) config('carga_hora_podcast', '10'));
+}
+
 /** Grade de todos os cursos (id_curso => [nome_curso, materias]), com cache. */
 function gradesPorCurso(): array {
   static $mapa = null;
@@ -501,13 +533,23 @@ function gradesPorCurso(): array {
   }
 
   $linhas = buscarColecao(COL_PACOTE, [
-    'fields' => 'id_curso,nome_curso,nome_materia,ordem_materia,dias_materia',
+    'fields' => 'id_curso,nome_curso,nome_materia,ordem_materia,dias_materia,'
+              . 'id_materia,pdf_apostila,pdf_jornada',
     'sort'   => 'id_curso,ordem_materia',
   ]);
 
   if ($linhas === null) {
     $mapa = is_readable($cache) ? json_decode((string) file_get_contents($cache), true) : [];
     return $mapa = is_array($mapa) ? $mapa : [];
+  }
+
+  // Conteúdo de cada matéria, para estimar a carga horária.
+  $exercicios = contagemPorMateria(COL_EXERCICIOS);
+  $provas     = contagemPorMateria(COL_PROVAS);
+  $anexos     = [];
+  foreach (buscarColecao(COL_ANEXOS, ['fields' => 'id_materia,arquivo_apostila,arquivo_jornada']) ?? [] as $a) {
+    $id = (string) ($a['id_materia'] ?? '');
+    if ($id !== '') $anexos[$id] = $a;
   }
 
   $mapa = [];
@@ -522,9 +564,19 @@ function gradesPorCurso(): array {
     foreach ($mapa[$id]['materias'] as $m) {
       if (mb_strtolower($m['nome'], 'UTF-8') === mb_strtolower($materia, 'UTF-8')) continue 2;
     }
+
+    $uuid     = (string) ($l['id_materia'] ?? '');
+    $questoes = ($exercicios[$uuid] ?? 0) + ($provas[$uuid] ?? 0);
+    $anexo    = $anexos[$uuid] ?? [];
+
     $mapa[$id]['materias'][] = [
-      'nome' => nomeMateria($materia),
-      'dias' => (int) ($l['dias_materia'] ?? 0),
+      'nome'  => nomeMateria($materia),
+      'dias'  => (int) ($l['dias_materia'] ?? 0),
+      'horas' => horasDaMateria(
+        $questoes,
+        !empty($l['pdf_apostila']) || !empty($anexo['arquivo_apostila']),
+        !empty($l['pdf_jornada'])  || !empty($anexo['arquivo_jornada'])
+      ),
     ];
   }
 

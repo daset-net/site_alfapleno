@@ -42,7 +42,7 @@ $metaDescricao = $curso['seoDescricao'] !== ''
 
 // Grade do curso (ava_pacote_curso): as matérias que o aluno vai estudar.
 $materias = materiasDoCurso($curso);
-$diasGrade = array_sum(array_column($materias, 'dias'));
+$horasGrade = array_sum(array_column($materias, 'horas'));
 
 $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   . rawurlencode('Olá! Quero saber mais sobre o curso ' . $curso['nome'] . '.');
@@ -233,9 +233,9 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
         <span class="eyebrow">Grade curricular</span>
         <h2>As matérias que você <span class="gradient-text">vai estudar</span></h2>
         <p>
-          <?= count($materias) ?> matéria<?= count($materias) > 1 ? 's' : '' ?> na plataforma,
-          <?php if ($diasGrade > 0): ?>
-            com <?= (int) $diasGrade ?> dias de acesso somados —
+          <?= count($materias) ?> matéria<?= count($materias) > 1 ? 's' : '' ?>
+          <?php if ($horasGrade > 0): ?>
+            e cerca de <?= number_format($horasGrade, 0, ',', '.') ?> horas de conteúdo —
           <?php endif; ?>
           liberadas na ordem, para você avançar sem se perder.
         </p>
@@ -247,7 +247,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
             <span class="grade-lista__n"><?= str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) ?></span>
             <div>
               <strong><?= e($m['nome']) ?></strong>
-              <?php if ($m['dias'] > 0): ?><small><?= (int) $m['dias'] ?> dias</small><?php endif; ?>
+              <?php if (!empty($m['horas'])): ?><small><?= (int) $m['horas'] ?>h de conteúdo</small><?php endif; ?>
             </div>
           </li>
         <?php endforeach; ?>

@@ -215,6 +215,26 @@ A página do curso lista as **matérias de verdade**, puxadas da coleção
 dias de acesso de cada uma. Nada é digitado à mão — mudou a grade no AVASET,
 muda no site na próxima leitura (cache de 10 minutos).
 
+Em vez do prazo de acesso, cada matéria mostra a **carga horária aproximada**,
+calculada a partir do conteúdo cadastrado (`ava_pacote_materia` = atividades,
+`ava_pacote_prova` = prova, `ava_pacote_anexo` / `pdf_apostila` / `pdf_jornada`):
+
+| chave (`site_configuracoes`) | padrão | entra na conta |
+|---|---|---|
+| `carga_hora_questao` | `1` | por questão de exercício ou prova |
+| `carga_hora_videoaula` | `1` | a vídeo-aula que acompanha cada questão |
+| `carga_hora_apostila` | `1` | se a matéria tem apostila |
+| `carga_hora_jornada` | `1` | se a matéria tem jornada |
+| `carga_hora_podcast` | `10` | o podcast da matéria |
+| `carga_horaria_padrao` | `30` | matéria ainda **sem** conteúdo cadastrado |
+
+Ou seja, uma matéria com 10 questões e podcast dá `10×(1+1) + 10 = 30h`. O total
+do curso é a soma das matérias e aparece no topo da seção.
+
+> Enquanto as atividades não estiverem cadastradas no Directus da escola, quase
+> tudo cai no `carga_horaria_padrao`. Assim que elas entram, o número passa a
+> variar por matéria sozinho.
+
 O elo é o `id_curso`, **conferido pelo nome**: em alguns pacotes antigos o
 mesmo código aponta para cursos diferentes nas duas tabelas (`CT008` é Meio
 Ambiente no catálogo e Estética no pacote). Se os nomes não baterem,
