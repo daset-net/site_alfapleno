@@ -1067,6 +1067,69 @@ ul { list-style: none; }
 .barra-matricula small { display: block; font-size: 12px; color: var(--muted); }
 .barra-matricula strong { font-size: 21px; color: var(--navy-700); }
 
+/* --- Balão de prova social (quem acabou de se matricular) ----------------- */
+.aviso-pop {
+  position: fixed;
+  bottom: 26px; left: 26px;
+  z-index: 950;
+  width: min(360px, calc(100vw - 32px));
+  display: flex; align-items: center; gap: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  padding: 12px 14px;
+  opacity: 0;
+  transform: translateY(14px) scale(.96);
+  pointer-events: none;
+  transition: opacity .35s ease, transform .35s cubic-bezier(.2, .8, .3, 1);
+}
+.aviso-pop.aberto { opacity: 1; transform: none; pointer-events: auto; }
+.aviso-pop--direita { left: auto; right: 26px; bottom: 100px; }
+
+.aviso-pop__foto {
+  flex: 0 0 auto;
+  width: 52px; height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: 22px; font-weight: 700;
+}
+.aviso-pop__foto--iniciais { font-size: 17px; letter-spacing: .5px; }
+
+.aviso-pop__link { display: block; min-width: 0; flex: 1; }
+.aviso-pop__texto { min-width: 0; flex: 1; }
+.aviso-pop__texto p {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.aviso-pop__texto strong { color: var(--navy-700); font-weight: 600; }
+.aviso-pop__texto small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.aviso-pop__fechar {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  border: 0; background: none; cursor: pointer;
+  color: var(--muted);
+  font-size: 17px; line-height: 1;
+  padding: 2px;
+  border-radius: 6px;
+  transition: color .2s, background .2s;
+}
+.aviso-pop__fechar:hover { color: var(--ink); background: var(--bg-softer); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aviso-pop { transition: opacity .2s ease; transform: none; }
+}
+
 /* ==========================================================================
    RESPONSIVO
    ========================================================================== */
@@ -1119,4 +1182,9 @@ ul { list-style: none; }
   .page-curso .whatsapp-float { bottom: 92px; }
   .page-curso .footer { padding-bottom: 90px; }
   .barra-matricula { display: flex; }
+
+  /* Balão: acima da barra de matrícula e sem esbarrar no botão do WhatsApp */
+  .aviso-pop { left: 16px; right: 16px; bottom: 16px; width: auto; }
+  .aviso-pop--direita { left: 16px; right: 16px; bottom: 16px; }
+  .page-curso .aviso-pop { bottom: 84px; }
 }

@@ -21,6 +21,8 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
   e formulário de contato (`/api/contato.php`).
 - **Painel próprio** em `/admin`, com o **mesmo login do `ead.edualfa.com.br`**
   (sem cadastro nem senha separada), para trocar capas e editar textos.
+- **Balões de prova social**: avisos de quem acabou de se matricular, com o texto
+  escrito no painel.
 - **Leads** salvos em CSV persistente (`data/leads.csv`).
 - Botão flutuante de WhatsApp.
 
@@ -45,6 +47,7 @@ site_edualfa/
 │   ├── assets/
 │   │   ├── css/style.css
 │   │   ├── js/app.js       # Vue da home
+│   │   ├── js/avisos.js    # balões de "fulano se matriculou"
 │   │   ├── js/curso.js     # formulário e header da página do curso
 │   │   └── img/
 │   │       ├── edualfa.png            # logo colorida (fundos claros)
@@ -52,6 +55,7 @@ site_edualfa/
 │   │       └── favicon.ico / .png
 │   └── api/
 │       ├── _catalogo.php   # leitura do Directus + cache (usado por todas as páginas)
+│       ├── avisos.php      # inscrições recentes p/ os balões de prova social
 │       ├── _conteudo.php   # texto de reserva por modalidade
 │       ├── cursos.php      # catálogo em JSON
 │       ├── imagem.php      # proxy das capas do Directus (não expõe o token)
@@ -116,6 +120,7 @@ Três coleções, com papéis bem separados:
 | `ava_catalogo_curso` | **Preço + quais cursos existem.** Fonte única de valores, parcelas e descontos. O campo `ativo` liga/desliga o curso (controlado no painel do AVASET). |
 | `site_catalogo_cursos` | **Camada editorial (opcional).** Imagem de capa, textos, slug e ordem de cada curso. |
 | `site_configuracoes` | **Configurações gerais.** Contato, redes sociais, textos da home, números e SEO. |
+| `site_alunos_inscricoes_especiais` | **Prova social.** Inscrições mostradas nos balões (veja *Balões de matrícula*). |
 
 > **Quais cursos aparecem no site:** todos os do `ava_catalogo_curso`, **menos os desativados**
 > (`ativo = false`). O interruptor fica no painel do AVASET (Catálogo de Cursos) e vale ao mesmo
@@ -193,6 +198,46 @@ Ajustes na `site_configuracoes`:
 | `oferta_offset` | `0` | desloca a rotação, para escolher em que degrau ela começa |
 
 Os ciclos sempre começam numa segunda-feira, no fuso `America/Fortaleza`.
+
+## 🔔 Balões de matrícula (prova social)
+
+De tempos em tempos aparece um balão no canto da tela — *"Fulana, de Sorocaba -
+SP, se matriculou no curso EJA Ensino Médio"* — para o visitante ver que outras
+pessoas estão comprando. Vale na home e na página do curso.
+
+Os nomes vêm da coleção **`site_alunos_inscricoes_especiais`** do Directus (uma
+linha por inscrição: `nome`, `curso`, `cidade`, `estado`, `data_hora`). O site lê
+as **60 mais recentes**, monta a lista em `api/avisos.php` (com o mesmo cache de
+10 minutos do catálogo) e o `assets/js/avisos.js` faz o rodízio. Cada visitante
+começa num ponto diferente da lista, então dois visitantes não veem a mesma
+sequência. O nome da tabela sai da chave `site_alunos_inscricoes_especiais` da
+`site_configuracoes` — trocar a tabela não exige mexer no código.
+
+Quando o curso da inscrição existe no catálogo, o balão ganha a **capa (ou o
+emoji) do curso** e vira link para a página de conversão dele. Sem
+correspondência, mostra as iniciais do aluno e não leva a lugar nenhum.
+
+**O texto é escrito no painel**, na `site_configuracoes`:
+
+| chave | padrão | efeito |
+|---|---|---|
+| `aviso_ativo` | `sim` | `nao` desliga os balões |
+| `aviso_texto` | `*{nome}*, de {cidade} - {estado}, se matriculou no curso *{curso}*` | linha principal |
+| `aviso_rodape` | `{quando} · matrícula confirmada` | segunda linha, menor (vazio esconde) |
+| `aviso_posicao` | `esquerda` | `direita` joga o balão para o outro canto |
+| `aviso_primeiro_segundos` | `8` | espera até o primeiro balão |
+| `aviso_intervalo_segundos` | `25` | espaço entre um balão e o próximo |
+| `aviso_duracao_segundos` | `7` | tempo que cada um fica na tela |
+
+Marcadores aceitos nos dois textos: `{nome}`, `{primeiro_nome}`, `{curso}`,
+`{cidade}`, `{estado}` e `{quando}` (tempo relativo calculado do `data_hora`:
+"há 20 minutos", "ontem", "há 2 meses"). O que estiver *entre asteriscos* sai em
+**negrito**. Quem escreve escolhe o verbo — "comprou", "se matriculou",
+"garantiu a vaga".
+
+> O balão não aparece com a aba em segundo plano e some de vez se o visitante
+> clicar no **X** (volta na próxima visita). Todo o texto é escapado antes de ir
+> para a tela, então nome vindo do Directus não injeta HTML.
 
 ## 🎓 Matrícula online
 

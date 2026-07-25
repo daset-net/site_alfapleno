@@ -124,7 +124,7 @@ function caminhoCache(string $nome = 'catalogo'): string {
 
 /** Invalida o cache para que uma edição no Directus apareça no site na hora. */
 function limparCache(): void {
-  foreach (['catalogo', 'config'] as $nome) {
+  foreach (['catalogo', 'config', 'avisos'] as $nome) {
     @unlink(caminhoCache($nome));
   }
 }

@@ -383,5 +383,6 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/avisos.js"></script>
 </body>
 </html>

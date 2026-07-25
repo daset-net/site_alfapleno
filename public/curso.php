@@ -542,5 +542,6 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
 
 <script src="assets/js/curso.js"></script>
 <script src="assets/js/matricula.js"></script>
+<script src="assets/js/avisos.js"></script>
 </body>
 </html>
