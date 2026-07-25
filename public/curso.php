@@ -150,6 +150,19 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
             <p class="oferta__economia"><i class="ri-price-tag-3-line"></i> Você economiza R$ <?= e(number_format($economia, 2, ',', '.')) ?> por parcela</p>
           <?php endif; ?>
 
+          <?php if ($curso['desconto']): ?>
+          <div class="contador" data-fim="<?= e($curso['ofertaFim']) ?>">
+            <p class="contador__titulo"><i class="ri-timer-flash-line"></i> Condição de <?= (int) $curso['desconto'] ?>% termina em</p>
+            <div class="contador__relogio">
+              <span><strong data-parte="dias">--</strong><small>dias</small></span>
+              <span><strong data-parte="horas">--</strong><small>horas</small></span>
+              <span><strong data-parte="min">--</strong><small>min</small></span>
+              <span><strong data-parte="seg">--</strong><small>seg</small></span>
+            </div>
+            <p class="contador__nota">Depois disso o valor volta para a tabela do próximo ciclo.</p>
+          </div>
+          <?php endif; ?>
+
           <a href="#matricula" class="btn btn-primary oferta__btn">Quero me matricular <i class="ri-arrow-right-line"></i></a>
 
           <ul class="oferta__lista">

@@ -192,6 +192,66 @@ function urlImagem(?string $uuid): string {
   return 'api/imagem.php?id=' . $uuid;
 }
 
+// ---------------------------------------------------------------- oferta do ciclo
+/**
+ * Ciclo da campanha: o desconto anunciado vale por um período fechado e muda
+ * quando o período vira. O contador na página aponta para esse fim — quando ele
+ * zera, o preço realmente muda, então não há prazo de mentira.
+ *
+ * @return array{indice:int, fim:int} índice do ciclo e quando ele termina (epoch)
+ */
+function cicloOferta(): array {
+  $dias = max(1, (int) config('oferta_ciclo_dias', '7'));
+  $tz   = new DateTimeZone('America/Fortaleza');
+
+  // Marco fixo numa segunda-feira: os ciclos sempre começam na segunda.
+  $marco   = (new DateTime('2026-01-05 00:00:00', $tz))->getTimestamp();
+  $periodo = $dias * 86400;
+  $indice  = (int) floor(((new DateTime('now', $tz))->getTimestamp() - $marco) / $periodo);
+
+  return ['indice' => $indice, 'fim' => $marco + ($indice + 1) * $periodo];
+}
+
+/**
+ * Versão do curso que está em oferta neste ciclo.
+ *
+ * O catálogo tem a mesma matrícula em vários descontos (30/40/50/60%). Em vez de
+ * anunciar sempre o mesmo, o site gira a escada: um ciclo em 60%, outro em 50%,
+ * outro em 40%. Todos os cursos giram juntos — é uma campanha só, mais fácil de
+ * comunicar e de o aluno entender.
+ *
+ * Configurações (site_configuracoes):
+ *   oferta_modo       = rotativo (padrão) | fixo — fixo trava no maior desconto
+ *   oferta_niveis     = quantos degraus entram na rotação (padrão 3: 60/50/40)
+ *   oferta_ciclo_dias = duração do ciclo em dias (padrão 7)
+ *   oferta_offset     = desloca a rotação, para escolher em que degrau ela começa
+ */
+function ofertaDoCiclo(array $versoes): ?array {
+  $ativas = [];
+  foreach ($versoes as $v) {
+    if (($v['ativo'] ?? true) === false) continue;
+    if ((float) ($v['valor_parcela'] ?? 0) <= 0) continue;
+    $ativas[] = $v;
+  }
+  if (!$ativas) return null;
+
+  // Do maior desconto para o menor; empate desempata pela parcela mais barata.
+  usort($ativas, function ($a, $b) {
+    $da = (float) ($a['desconto'] ?? 0);
+    $db = (float) ($b['desconto'] ?? 0);
+    if ($da !== $db) return $db <=> $da;
+    return (float) $a['valor_parcela'] <=> (float) $b['valor_parcela'];
+  });
+
+  if (strtolower(config('oferta_modo', 'rotativo')) === 'fixo') return $ativas[0];
+
+  $niveis = max(1, (int) config('oferta_niveis', '3'));
+  $escada = array_slice($ativas, 0, min($niveis, count($ativas)));
+
+  $passo = cicloOferta()['indice'] + (int) config('oferta_offset', '0');
+  return $escada[(($passo % count($escada)) + count($escada)) % count($escada)];
+}
+
 // ---------------------------------------------------------------- montagem
 /**
  * Junta preço (ava_catalogo_curso) com a camada editorial (site_catalogo_cursos).
@@ -211,11 +271,11 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     if (!empty($e['id_curso'])) $site[$e['id_curso']] = $e;
   }
 
-  // Uma linha por curso: a versão com a menor parcela (melhor oferta vigente).
+  // Uma linha por curso: a versão em oferta neste ciclo (ver ofertaDoCiclo).
   // Regra: todos os cursos do catálogo aparecem no site, MENOS os desativados no
   // AVASET (ava_catalogo_curso.ativo=false). A ficha em site_catalogo_cursos é
   // opcional — só enriquece (capa/textos) e pode ocultar localmente pelo painel.
-  $melhores = [];
+  $versoes = [];
   foreach ($precos as $l) {
     $id = $l['id_curso'] ?? '';
     if ($id === '') continue;
@@ -224,11 +284,13 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     $s = $site[$id] ?? null;
     if ($s && !($s['ativo'] ?? true)) continue;      // oculto pelo painel do site
 
-    $parcela = (float) ($l['valor_parcela'] ?? 0);
-    if ($parcela <= 0) continue;
-    if (!isset($melhores[$id]) || $parcela < (float) $melhores[$id]['valor_parcela']) {
-      $melhores[$id] = $l;
-    }
+    $versoes[$id][] = $l;
+  }
+
+  $melhores = [];
+  foreach ($versoes as $id => $lista) {
+    $escolhida = ofertaDoCiclo($lista);
+    if ($escolhida) $melhores[$id] = $escolhida;
   }
 
   $peso = ['eja' => 1, 'tecnico' => 2, 'livre' => 3];
@@ -276,6 +338,8 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       'desconto'       => (int) ($l['desconto'] ?? 0),
       'valorTotal'     => moeda($l['valor_total'] ?? 0),
       'codigo'         => $l['codigo_unico_especial'] ?? $id,
+      'economia'       => moeda(max(0, (float) ($l['valor_parcela_normal'] ?? 0) - (float) ($l['valor_parcela'] ?? 0))),
+      'ofertaFim'      => date('c', cicloOferta()['fim']),
 
       // conteúdo da página de conversão
       'chamada'        => $s['chamada']  ?? '',
@@ -332,8 +396,8 @@ function catalogo(): array {
 }
 
 /**
- * Linha bruta do ava_catalogo_curso que a matrícula deve usar: a versão ativa
- * com a menor parcela — a mesma oferta que o site exibe no card.
+ * Linha bruta do ava_catalogo_curso que a matrícula deve usar: a mesma versão
+ * que o site está anunciando neste ciclo (ver ofertaDoCiclo).
  *
  * Vai direto ao Directus (sem cache) e devolve os valores originais, não os
  * formatados. É a fonte do preço na hora de matricular: nada de financeiro
@@ -350,14 +414,7 @@ function planoVigente(string $idCurso): ?array {
   ]);
   if (!$linhas) return null;
 
-  $melhor = null;
-  foreach ($linhas as $l) {
-    if (($l['ativo'] ?? true) === false) continue;
-    $parcela = (float) ($l['valor_parcela'] ?? 0);
-    if ($parcela <= 0) continue;
-    if ($melhor === null || $parcela < (float) $melhor['valor_parcela']) $melhor = $l;
-  }
-  return $melhor;
+  return ofertaDoCiclo($linhas);
 }
 
 /** Um curso do catálogo pelo id_curso (ex.: CT005) ou pelo slug. */
