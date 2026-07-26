@@ -11,14 +11,14 @@
 //
 // Configuração (EasyPanel → Environment):
 //   TOKEN_MATRICULA_EXTERNA = <mesmo api_token_matricula_externa do AVASET>
-//   AVASET_MATRICULA_URL    = https://ead.edualfa.com.br/api/matricula_externa.php (padrão)
+//   AVASET_MATRICULA_URL    = https://ead.alfapleno.com.br/api/matricula_externa.php (padrão)
 
 require __DIR__ . '/_catalogo.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-const MATRICULA_URL_PADRAO = 'https://ead.edualfa.com.br/api/matricula_externa.php';
+const MATRICULA_URL_PADRAO = 'https://ead.alfapleno.com.br/api/matricula_externa.php';
 const LIMITE_POR_IP        = 5;    // matrículas
 const JANELA_LIMITE        = 900;  // segundos (15 min)
 
@@ -195,7 +195,7 @@ $payload = [
   'cpf_responsavel'  => $cpfResp,
 
   // origem da venda
-  'gestor_nome' => 'Site EDUALFA',
+  'gestor_nome' => 'Site ALFAPLENO',
 ];
 if ($afiliado !== '') $payload['afiliado_email'] = $afiliado;
 if ($polo !== '')     $payload['polo'] = $polo;
@@ -240,6 +240,6 @@ fim(200, [
   'curso'     => $payload['curso_nome'],
   'usuario'   => $cpf,
   'senha'     => so_digitos($payload['nascimento']),
-  'portal'    => config('url_ead', 'https://ead.edualfa.com.br'),
+  'portal'    => config('url_ead', 'https://ead.alfapleno.com.br'),
   'mensagem'  => 'Matrícula registrada com sucesso!',
 ]);

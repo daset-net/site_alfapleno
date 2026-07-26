@@ -1,5 +1,5 @@
 <?php
-// index.php — página principal do site EDUALFA
+// index.php — página principal do site ALFAPLENO
 // Textos e contatos vêm da coleção site_configuracoes (Directus).
 require __DIR__ . '/api/_catalogo.php';
 
@@ -47,9 +47,9 @@ function selosModalidade(array $tags, int $limite = 3): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="<?= e(config('seo_descricao', 'EDUALFA — Educação que transforma. Supletivo EJA, Cursos Técnicos e Cursos Livres com certificação reconhecida, 100% online e no seu ritmo.')) ?>">
+  <meta name="description" content="<?= e(config('seo_descricao', 'ALFAPLENO — Educação que transforma. Supletivo EJA, Cursos Técnicos e Cursos Livres com certificação reconhecida, 100% online e no seu ritmo.')) ?>">
   <meta name="theme-color" content="#0f2f6b">
-  <title><?= e(config('seo_titulo', 'EDUALFA · Educação que transforma vidas')) ?></title>
+  <title><?= e(config('seo_titulo', 'ALFAPLENO · Educação que transforma vidas')) ?></title>
 
   <link rel="icon" href="assets/img/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
@@ -68,8 +68,8 @@ function selosModalidade(array $tags, int $limite = 3): string {
     <div class="container header__inner">
       <a href="#home" class="brand">
         <!-- negativa sobre o hero escuro, colorida quando o header fica branco -->
-        <img class="brand__neg" src="assets/img/edualfa-negativo.png" alt="EDUALFA">
-        <img class="brand__cor" src="assets/img/edualfa.png" alt="EDUALFA">
+        <img class="brand__neg" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
+        <img class="brand__cor" src="assets/img/alfapleno.png" alt="ALFAPLENO">
       </a>
 
       <nav class="nav" :class="{ open: menuOpen }" @click="menuOpen = false">
@@ -123,9 +123,9 @@ function selosModalidade(array $tags, int $limite = 3): string {
         <div class="glow"></div>
         <div class="hero__media<?= $heroImg === '' ? ' hero__media--vazio' : '' ?>">
           <?php if ($heroImg !== ''): ?>
-            <img src="<?= e($heroImg) ?>&w=1200" alt="Estude na EDUALFA">
+            <img src="<?= e($heroImg) ?>&w=1200" alt="Estude na ALFAPLENO">
           <?php else: ?>
-            <img class="hero__media-logo" src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+            <img class="hero__media-logo" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
           <?php endif; ?>
         </div>
         <div class="hero__chip hero__chip--1"><i class="ri-award-fill"></i> Certificado reconhecido</div>
@@ -254,7 +254,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
   <section class="section" id="diferenciais">
     <div class="container">
       <div class="section-head" data-reveal>
-        <span class="eyebrow">Por que EDUALFA</span>
+        <span class="eyebrow">Por que ALFAPLENO</span>
         <h2>Uma experiência de ensino <span class="gradient-text">feita para você</span></h2>
       </div>
       <div class="feat-grid">
@@ -287,7 +287,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
     <div class="container">
       <div class="cta-band" data-reveal>
         <h2>Dê o próximo passo na sua carreira</h2>
-        <p>Milhares de alunos já transformaram suas vidas com a EDUALFA. Agora é a sua vez.</p>
+        <p>Milhares de alunos já transformaram suas vidas com a ALFAPLENO. Agora é a sua vez.</p>
         <a href="#contato" class="btn btn-light">Fazer minha matrícula <i class="ri-arrow-right-line"></i></a>
       </div>
     </div>
@@ -323,7 +323,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
         <p>Preencha o formulário e um de nossos consultores entrará em contato para tirar todas as suas dúvidas e ajudar na sua matrícula.</p>
 
         <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span><?= e(config('telefone_exibicao', '(00) 00000-0000')) ?></span></div></div>
-        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@edualfa.com.br')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@alfapleno.com.br')) ?></span></div></div>
         <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span><?= e(config('horario_atendimento', 'Segunda a sexta, das 8h às 18h')) ?></span></div></div>
       </div>
 
@@ -367,7 +367,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+          <img src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
           <p>Educação que transforma vidas. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida e 100% online.</p>
           <div class="footer__social">
             <?php if (config('instagram')): ?><a href="<?= e(config('instagram')) ?>" target="_blank" rel="noopener" aria-label="Instagram"><i class="ri-instagram-line"></i></a><?php endif; ?>
@@ -402,7 +402,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© <?= $ano ?> EDUALFA · Todos os direitos reservados.</span>
+        <span>© <?= $ano ?> ALFAPLENO · Todos os direitos reservados.</span>
         <span>Feito com <i class="ri-heart-fill" style="color:#ff5a5a"></i> para transformar vidas.</span>
       </div>
     </div>

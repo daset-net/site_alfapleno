@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var CHAVE_FECHADO = 'edualfa_avisos_fechados';
+  var CHAVE_FECHADO = 'alfapleno_avisos_fechados';
 
   function escapar(s) {
     return String(s == null ? '' : s)

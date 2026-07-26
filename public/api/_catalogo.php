@@ -7,7 +7,7 @@
 //   site_configuracoes    → configurações gerais (contato, textos da home, SEO)
 //
 // Configuração (EasyPanel → Environment):
-//   API_DIRECTUS_CONFIGURACOES   = https://cloud.edualfa.com.br
+//   API_DIRECTUS_CONFIGURACOES   = https://cloud.alfapleno.com.br
 //   TOKEN_DIRECTUS_CONFIGURACOES = <token estático do Directus>
 // (também aceita DIRECTUS_URL / DIRECTUS_TOKEN)
 
@@ -47,7 +47,7 @@ $CATEGORIAS = [
 
 // ---------------------------------------------------------------- config
 function conexao(string $chave, string $padrao = ''): string {
-  // Nomes equivalentes: o padrão dos outros sistemas EDUALFA (usado no EasyPanel)
+  // Nomes equivalentes: o padrão dos outros sistemas ALFAPLENO (usado no EasyPanel)
   // e os nomes curtos deste projeto. Tenta ambos, em variável de ambiente e arquivo.
   $mapa = [
     'DIRECTUS_URL'   => 'API_DIRECTUS_CONFIGURACOES',
@@ -76,7 +76,7 @@ function arquivosConexao(): array {
 
   $dados = [];
   foreach ([
-    __DIR__ . '/../../conexao/conexao_directus_avaset_unico_edualfa.txt', // dev local
+    __DIR__ . '/../../conexao/conexao_directus_avaset_unico_alfapleno.txt', // dev local
     __DIR__ . '/../../.env',                                              // gravado pelo entrypoint
     __DIR__ . '/../.env',
     __DIR__ . '/.env',
@@ -125,7 +125,7 @@ function buscarColecao(string $colecao, array $params = []): ?array {
 
 // ---------------------------------------------------------------- helpers
 function caminhoCache(string $nome = 'catalogo'): string {
-  return rtrim(sys_get_temp_dir(), '/\\') . '/edualfa_' . $nome . '.json';
+  return rtrim(sys_get_temp_dir(), '/\\') . '/alfapleno_' . $nome . '.json';
 }
 
 /** Invalida o cache para que uma edição no Directus apareça no site na hora. */
@@ -193,11 +193,11 @@ function config(string $chave, string $padrao = ''): string {
 }
 
 // ---------------------------------------------------------------- polo (unidade)
-// Link de divulgação de um polo: edualfa.com.br/?polo=centro.aracaju.se
+// Link de divulgação de um polo: alfapleno.com.br/?polo=centro.aracaju.se
 // O código é o e-mail da unidade sem o domínio. Guardado em cookie por 30 dias,
 // ele viaja na matrícula e trava o aluno naquela unidade; sem ele, o AVASET
 // registra a venda na unidade EAD do estado do aluno.
-const POLO_COOKIE = 'edualfa_polo';
+const POLO_COOKIE = 'alfapleno_polo';
 const POLO_DIAS   = 30;
 
 /** O código do polo desta visita — do link, ou do cookie deixado por ele. */

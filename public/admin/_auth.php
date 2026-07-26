@@ -1,8 +1,8 @@
 <?php
 // admin/_auth.php — autenticação do painel do site.
 //
-// NÃO existe cadastro próprio aqui: o login é o mesmo do ead.edualfa.com.br,
-// validado contra a tabela_gestores do Directus da EDUALFA. Quem troca a senha
+// NÃO existe cadastro próprio aqui: o login é o mesmo do ead.alfapleno.com.br,
+// validado contra a tabela_gestores do Directus da ALFAPLENO. Quem troca a senha
 // no AVASET troca aqui junto, e quem é bloqueado lá perde o acesso aqui.
 //
 // A verificação de senha replica a ordem usada em api/login.php do AVASET
@@ -29,7 +29,7 @@ function iniciarSessao(): void {
     'secure'   => $seguro,        // só trafega em HTTPS quando disponível
     'samesite' => 'Lax',
   ]);
-  session_name('EDUALFA_ADMIN');
+  session_name('ALFAPLENO_ADMIN');
   session_start();
 }
 
@@ -83,7 +83,7 @@ function csrfValido(?string $enviado): bool {
 
 // ---------------------------------------------------------------- limite de tentativas
 function arquivoTentativas(): string {
-  return rtrim(sys_get_temp_dir(), '/\\') . '/edualfa_admin_tentativas.json';
+  return rtrim(sys_get_temp_dir(), '/\\') . '/alfapleno_admin_tentativas.json';
 }
 
 function ipAtual(): string {

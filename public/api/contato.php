@@ -60,9 +60,9 @@ if ($fp = @fopen($arquivo, 'a')) {
 }
 
 // (Opcional) Enviar e-mail — descomente e configure o destino em produção
-// @mail('contato@edualfa.com.br', 'Novo lead: '.$interesse,
+// @mail('contato@alfapleno.com.br', 'Novo lead: '.$interesse,
 //   "Nome: $nome\nE-mail: $email\nTelefone: $telefone\nMensagem: $mensagem",
-//   "From: no-reply@edualfa.com.br\r\n");
+//   "From: no-reply@alfapleno.com.br\r\n");
 
 echo json_encode([
   'ok' => true,

@@ -42,7 +42,7 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
 
 $tituloPagina = $curso['seoTitulo'] !== ''
   ? $curso['seoTitulo']
-  : $curso['nome'] . ' · ' . $curso['categoriaLabel'] . ' · EDUALFA';
+  : $curso['nome'] . ' · ' . $curso['categoriaLabel'] . ' · ALFAPLENO';
 
 $metaDescricao = $curso['seoDescricao'] !== ''
   ? $curso['seoDescricao']
@@ -64,7 +64,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <meta name="theme-color" content="#0f2f6b">
   <title><?= e($tituloPagina) ?></title>
 
-  <meta property="og:title" content="<?= e($curso['nome']) ?> · EDUALFA">
+  <meta property="og:title" content="<?= e($curso['nome']) ?> · ALFAPLENO">
   <meta property="og:description" content="<?= e($conteudo['chamada']) ?>">
   <meta property="og:type" content="website">
   <?php if ($curso['imagem'] !== ''): ?>
@@ -86,8 +86,8 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="index.php" class="brand">
-        <img class="brand__neg" src="assets/img/edualfa-negativo.png" alt="EDUALFA">
-        <img class="brand__cor" src="assets/img/edualfa.png" alt="EDUALFA">
+        <img class="brand__neg" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
+        <img class="brand__cor" src="assets/img/alfapleno.png" alt="ALFAPLENO">
       </a>
       <nav class="nav">
         <a href="index.php">Início</a>
@@ -319,7 +319,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
         <p>Preencha seus dados e conclua a matrícula em <strong><?= e($curso['nome']) ?></strong> agora, na condição de <strong>R$ <?= e($curso['preco']) ?><?= $curso['parcelas'] ? ' em ' . (int) $curso['parcelas'] . 'x' : '' ?></strong>. Ao final você já recebe o número da matrícula e os dados de acesso à plataforma.</p>
 
         <div class="line"><div class="ic"><i class="ri-whatsapp-line"></i></div><div><strong>WhatsApp</strong><span><?= e(config('telefone_exibicao', '(00) 00000-0000')) ?></span></div></div>
-        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@edualfa.com.br')) ?></span></div></div>
+        <div class="line"><div class="ic"><i class="ri-mail-line"></i></div><div><strong>E-mail</strong><span><?= e(config('email_contato', 'contato@alfapleno.com.br')) ?></span></div></div>
         <div class="line"><div class="ic"><i class="ri-map-pin-line"></i></div><div><strong>Atendimento</strong><span><?= e(config('horario_atendimento', 'Segunda a sexta, das 8h às 18h')) ?></span></div></div>
       </div>
 
@@ -443,14 +443,14 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
       <div class="matricula-sucesso" id="matricula-sucesso" hidden>
         <div class="matricula-sucesso__selo"><i class="ri-check-line"></i></div>
         <h3>Matrícula registrada!</h3>
-        <p>Bem-vindo(a) à EDUALFA, <strong id="suc-nome"></strong>. Sua matrícula em <strong id="suc-curso"></strong> foi criada.</p>
+        <p>Bem-vindo(a) à ALFAPLENO, <strong id="suc-nome"></strong>. Sua matrícula em <strong id="suc-curso"></strong> foi criada.</p>
         <div class="matricula-sucesso__dados">
           <div><span>Número da matrícula</span><strong id="suc-numero"></strong></div>
           <div><span>Usuário (CPF)</span><strong id="suc-usuario"></strong></div>
           <div><span>Senha inicial</span><strong id="suc-senha"></strong></div>
         </div>
         <p class="form-nota form-nota--esq">Guarde esses dados. O acesso à plataforma é liberado assim que o pagamento da primeira parcela é confirmado — o boleto chega no seu e-mail. No primeiro login o sistema pede a troca da senha.</p>
-        <a id="suc-portal" class="btn btn-primary" href="https://ead.edualfa.com.br" target="_blank" rel="noopener">Ir para a plataforma <i class="ri-external-link-line"></i></a>
+        <a id="suc-portal" class="btn btn-primary" href="https://ead.alfapleno.com.br" target="_blank" rel="noopener">Ir para a plataforma <i class="ri-external-link-line"></i></a>
       </div>
     </div>
   </section>
@@ -549,7 +549,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <img src="assets/img/edualfa-negativo.png" alt="EDUALFA">
+          <img src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
           <p>Educação que transforma vidas. Supletivo EJA, cursos técnicos e cursos livres com certificação reconhecida e 100% online.</p>
           <div class="footer__social">
             <?php if (config('instagram')): ?><a href="<?= e(config('instagram')) ?>" target="_blank" rel="noopener" aria-label="Instagram"><i class="ri-instagram-line"></i></a><?php endif; ?>
@@ -584,7 +584,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
         </div>
       </div>
       <div class="footer__bottom">
-        <span>© <?= $ano ?> EDUALFA · Todos os direitos reservados.</span>
+        <span>© <?= $ano ?> ALFAPLENO · Todos os direitos reservados.</span>
         <span>Feito com <i class="ri-heart-fill" style="color:#ff5a5a"></i> para transformar vidas.</span>
       </div>
     </div>

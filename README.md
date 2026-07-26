@@ -1,6 +1,6 @@
-# EDUALFA — Site institucional
+# ALFAPLENO — Site institucional
 
-Site moderno e responsivo da **EDUALFA**, construído com **HTML, CSS, JavaScript, PHP** e **Vue 3 (via CDN)**, servido por **OpenLiteSpeed + LSPHP** (extremamente rápido) em contêiner Docker.
+Site moderno e responsivo da **ALFAPLENO**, construído com **HTML, CSS, JavaScript, PHP** e **Vue 3 (via CDN)**, servido por **OpenLiteSpeed + LSPHP** (extremamente rápido) em contêiner Docker.
 
 Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marinho, azul royal e ciano.
 
@@ -20,7 +20,7 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
   matrícula é criada no AVASET na hora, com número e credenciais na tela.
 - **API PHP** para catálogo (`/api/cursos.php`), matrícula (`/api/matricula.php`)
   e formulário de contato (`/api/contato.php`).
-- **Painel próprio** em `/admin`, com o **mesmo login do `ead.edualfa.com.br`**
+- **Painel próprio** em `/admin`, com o **mesmo login do `ead.alfapleno.com.br`**
   (sem cadastro nem senha separada), para trocar capas e editar textos.
 - **Balões de prova social**: avisos de quem acabou de se matricular, com o texto
   escrito no painel.
@@ -30,7 +30,7 @@ Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marin
 ## 📁 Estrutura
 
 ```
-site_edualfa/
+site_alfapleno/
 ├── Dockerfile              # OpenLiteSpeed + LSPHP
 ├── .dockerignore
 ├── public/                 # docroot servido pelo OpenLiteSpeed
@@ -51,8 +51,8 @@ site_edualfa/
 │   │   ├── js/avisos.js    # balões de "fulano se matriculou"
 │   │   ├── js/curso.js     # formulário e header da página do curso
 │   │   └── img/
-│   │       ├── edualfa.png            # logo colorida (fundos claros)
-│   │       ├── edualfa-negativo.png   # logo branca (fundos escuros)
+│   │       ├── alfapleno.png            # logo colorida (fundos claros)
+│   │       ├── alfapleno-negativo.png   # logo branca (fundos escuros)
 │   │       └── favicon.ico / .png
 │   └── api/
 │       ├── _catalogo.php   # leitura do Directus + cache (usado por todas as páginas)
@@ -69,14 +69,14 @@ site_edualfa/
 ## 🚀 Deploy no EasyPanel (App via Dockerfile)
 
 1. No EasyPanel, crie um **App** no projeto desejado.
-2. Em **Source**, selecione **GitHub** e aponte para o repositório `daset-net/site_edualfa`, branch `main`.
+2. Em **Source**, selecione **GitHub** e aponte para o repositório `daset-net/site_alfapleno`, branch `main`.
 3. Em **Build**, escolha **Dockerfile** (o EasyPanel detecta o `Dockerfile` na raiz).
 4. Em **Domains/Ports**, publique a **porta 80** do contêiner no domínio desejado.
 5. Em **Environment**, configure o acesso ao Directus (a pasta `conexao/` **não**
    vai para a imagem — está no `.dockerignore`):
 
    ```
-   DIRECTUS_URL=https://cloud.edualfa.com.br
+   DIRECTUS_URL=https://cloud.alfapleno.com.br
    DIRECTUS_TOKEN=<token estático do Directus>
    TOKEN_PURGA_SITE=<segredo compartilhado com o AVASET>
    TOKEN_MATRICULA_EXTERNA=<mesmo api_token_matricula_externa do AVASET>
@@ -87,7 +87,7 @@ site_edualfa/
    *Cache e resiliência*).
 
    Localmente, sem essas variáveis, o `cursos.php` lê os valores de
-   `conexao/conexao_directus_avaset_unico_edualfa.txt`.
+   `conexao/conexao_directus_avaset_unico_alfapleno.txt`.
 6. (Opcional) Em **Mounts**, adicione um volume persistente montado em
    `/var/www/vhosts/localhost/data` para preservar os leads (`leads.csv`).
 7. **Deploy**. O OpenLiteSpeed sobe automaticamente e serve o site na porta 80.
@@ -97,8 +97,8 @@ site_edualfa/
 ## 🐳 Rodando localmente
 
 ```bash
-docker build -t edualfa .
-docker run -p 8080:80 edualfa
+docker build -t alfapleno .
+docker run -p 8080:80 alfapleno
 # abra http://localhost:8080
 ```
 
@@ -113,7 +113,7 @@ docker run -p 8080:80 edualfa
 
 ## 🗄️ Conteúdo no Directus
 
-Quase tudo do site é editado no Directus da EDUALFA, **sem mexer no código**.
+Quase tudo do site é editado no Directus da ALFAPLENO, **sem mexer no código**.
 Três coleções, com papéis bem separados:
 
 | Coleção | Papel |
@@ -170,7 +170,7 @@ descarta o cache. Sem o `TOKEN_PURGA_SITE` configurado dos dois lados, a
 mudança continua valendo — só demora até 10 minutos para aparecer.
 
 ```bash
-curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://edualfa.com.br/api/purgar.php
+curl -X POST -H "X-Token: $TOKEN_PURGA_SITE" https://alfapleno.com.br/api/purgar.php
 ```
 
 > O cache é um arquivo no disco do contêiner: com mais de uma réplica, a purga
@@ -308,10 +308,10 @@ nada. O que estiver *entre asteriscos* sai em **negrito**. Quem escreve escolhe 
 ## 🎓 Matrícula online
 
 A página do curso matricula de verdade: o formulário grava o aluno no AVASET da
-EDUALFA, no mesmo lugar em que caem as matrículas do GESET.
+ALFAPLENO, no mesmo lugar em que caem as matrículas do GESET.
 
 ```
-navegador → /api/matricula.php → ead.edualfa.com.br/api/matricula_externa.php → Directus
+navegador → /api/matricula.php → ead.alfapleno.com.br/api/matricula_externa.php → Directus
 ```
 
 O que o site faz antes de repassar:
@@ -338,7 +338,7 @@ Configuração: `TOKEN_MATRICULA_EXTERNA` no site (EasyPanel) e a chave
 `api_token_matricula_externa` na `avaset_configuracoes` do Directus, com o mesmo
 valor. Sem o token, o formulário responde que a matrícula online está
 indisponível e orienta o WhatsApp. Para apontar para outro ambiente, use
-`AVASET_MATRICULA_URL` (padrão: `https://ead.edualfa.com.br/api/matricula_externa.php`).
+`AVASET_MATRICULA_URL` (padrão: `https://ead.alfapleno.com.br/api/matricula_externa.php`).
 
 ### Imagens
 
@@ -349,10 +349,10 @@ navegador. Aceita `?w=` em 400, 600, 800, 1200 ou 1600.
 ## 🔐 Painel do site (`/admin`)
 
 Para quem não quer abrir o Directus, o site tem um painel próprio em
-`https://edualfa.com.br/admin`.
+`https://alfapleno.com.br/admin`.
 
 **Não existe cadastro nem senha separada.** O login é validado contra a
-`tabela_gestores` do Directus da EDUALFA — a mesma do `ead.edualfa.com.br`.
+`tabela_gestores` do Directus da ALFAPLENO — a mesma do `ead.alfapleno.com.br`.
 Quem troca a senha no AVASET troca aqui junto; quem é bloqueado lá perde o
 acesso aqui na hora.
 

@@ -12,7 +12,7 @@ $abaAtiva = $abaAtiva ?? '';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title><?= e($titulo ?? 'Painel') ?> · EDUALFA</title>
+  <title><?= e($titulo ?? 'Painel') ?> · ALFAPLENO</title>
   <link rel="icon" href="../assets/img/favicon.ico" sizes="any">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css">
@@ -24,7 +24,7 @@ $abaAtiva = $abaAtiva ?? '';
 <header class="admin-topo">
   <div class="admin-topo__inner">
     <a href="painel.php" class="admin-marca">
-      <img src="../assets/img/edualfa.png" alt="EDUALFA">
+      <img src="../assets/img/alfapleno.png" alt="ALFAPLENO">
       <span>Painel do site</span>
     </a>
 

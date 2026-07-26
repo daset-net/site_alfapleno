@@ -19,11 +19,11 @@
     var af = new URLSearchParams(location.search).get('af');
     if (!af || af.indexOf('@') === -1) return;
     var validade = new Date(Date.now() + AF_DIAS * 864e5).toUTCString();
-    document.cookie = 'edualfa_af=' + encodeURIComponent(af) + ';expires=' + validade + ';path=/;SameSite=Lax';
+    document.cookie = 'alfapleno_af=' + encodeURIComponent(af) + ';expires=' + validade + ';path=/;SameSite=Lax';
   }
 
   function afiliado() {
-    var achado = document.cookie.match(/(?:^|;\s*)edualfa_af=([^;]*)/);
+    var achado = document.cookie.match(/(?:^|;\s*)alfapleno_af=([^;]*)/);
     return achado ? decodeURIComponent(achado[1]) : '';
   }
 
@@ -34,7 +34,7 @@
   // PHP (_catalogo.php), que já lê o link na primeira página aberta; aqui só
   // levamos o código junto com a matrícula para o AVASET travar a unidade.
   function polo() {
-    var achado = document.cookie.match(/(?:^|;\s*)edualfa_polo=([^;]*)/);
+    var achado = document.cookie.match(/(?:^|;\s*)alfapleno_polo=([^;]*)/);
     var valor = achado ? decodeURIComponent(achado[1]).toLowerCase() : '';
     return /^[a-z0-9._-]{2,80}$/.test(valor) ? valor : '';
   }

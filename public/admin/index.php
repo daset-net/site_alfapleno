@@ -1,6 +1,6 @@
 <?php
 // admin/index.php — entrada do painel do site.
-// Mesmo usuário e senha do ead.edualfa.com.br (tabela_gestores).
+// Mesmo usuário e senha do ead.alfapleno.com.br (tabela_gestores).
 
 require __DIR__ . '/_auth.php';
 
@@ -37,7 +37,7 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Painel do site · EDUALFA</title>
+  <title>Painel do site · ALFAPLENO</title>
   <link rel="icon" href="../assets/img/favicon.ico" sizes="any">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css">
@@ -46,9 +46,9 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
 </head>
 <body class="admin-login">
   <form class="login-card" method="post" autocomplete="on">
-    <img src="../assets/img/edualfa.png" alt="EDUALFA" class="login-logo">
+    <img src="../assets/img/alfapleno.png" alt="ALFAPLENO" class="login-logo">
     <h1>Painel do site</h1>
-    <p class="login-ajuda">Use o mesmo usuário e senha do <strong>ead.edualfa.com.br</strong>.</p>
+    <p class="login-ajuda">Use o mesmo usuário e senha do <strong>ead.alfapleno.com.br</strong>.</p>
 
     <?php if ($erro): ?>
       <div class="aviso aviso--erro"><i class="ri-error-warning-line"></i> <?= e($erro) ?></div>

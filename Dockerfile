@@ -1,12 +1,12 @@
 # ============================================================
-#  EDUALFA — Site institucional
+#  ALFAPLENO — Site institucional
 #  Servidor: OpenLiteSpeed + LSPHP (super rápido)
 #  Imagem oficial: litespeedtech/openlitespeed
 # ============================================================
 FROM litespeedtech/openlitespeed:latest
 
-LABEL org.opencontainers.image.title="EDUALFA" \
-      org.opencontainers.image.description="Site institucional EDUALFA sobre OpenLiteSpeed + PHP" \
+LABEL org.opencontainers.image.title="ALFAPLENO" \
+      org.opencontainers.image.description="Site institucional ALFAPLENO sobre OpenLiteSpeed + PHP" \
       maintainer="daset-net"
 
 ENV TZ=America/Sao_Paulo \
@@ -28,13 +28,13 @@ RUN mkdir -p /var/www/vhosts/localhost/data \
 # ---- Ponte de configuração -------------------------------------------------
 # Grava as variáveis de ambiente (injetadas pelo EasyPanel) num .env que o PHP
 # lê, contornando o fato de o LiteSpeed não repassar env para o LSPHP.
-COPY docker/entrypoint.sh /usr/local/bin/edualfa-entrypoint.sh
-RUN sed -i 's/\r$//' /usr/local/bin/edualfa-entrypoint.sh \
-    && chmod +x /usr/local/bin/edualfa-entrypoint.sh
+COPY docker/entrypoint.sh /usr/local/bin/alfapleno-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/alfapleno-entrypoint.sh \
+    && chmod +x /usr/local/bin/alfapleno-entrypoint.sh
 
 # ---- Rede ------------------------------------------------------------------
 # 80  -> HTTP do site      | 7080 -> painel admin do OpenLiteSpeed
 EXPOSE 80 7080
 
 # Nosso entrypoint prepara o .env e entrega o controle ao início oficial da imagem.
-ENTRYPOINT ["/usr/local/bin/edualfa-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/alfapleno-entrypoint.sh"]

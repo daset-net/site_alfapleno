@@ -1,4 +1,4 @@
-/* app.js — aplicação Vue 3 do site EDUALFA */
+/* app.js — aplicação Vue 3 do site ALFAPLENO */
 const { createApp } = Vue;
 
 createApp({
