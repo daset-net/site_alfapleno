@@ -2,7 +2,9 @@
 
 Site moderno e responsivo da **ALFAPLENO**, construído com **HTML, CSS, JavaScript, PHP** e **Vue 3 (via CDN)**, servido por **OpenLiteSpeed + LSPHP** (extremamente rápido) em contêiner Docker.
 
-Paleta visual baseada na logo da marca (globo azul + monograma "EA"): azul-marinho, azul royal e ciano.
+Paleta tirada da logo ALFA PLENO: o **azul-marinho** do livro faz a estrutura
+(topo, rodapé, fundos escuros) e o **dourado** do wi-fi é o acento que aparece —
+botão de ação, palavra destacada do título, ícones e o brilho do topo.
 
 ## ✨ Recursos
 
@@ -56,8 +58,9 @@ site_alfapleno/
 │   │   ├── js/curso.js     # formulário e header da página do curso
 │   │   ├── js/unidades.js  # busca e filtros (estado e tipo) na lista de unidades
 │   │   └── img/
-│   │       ├── alfapleno.png            # logo colorida (fundos claros)
-│   │       ├── alfapleno-negativo.png   # logo branca (fundos escuros)
+│   │       ├── alfapleno.png            # logo deitada, colorida (header ao rolar)
+│   │       ├── alfapleno-negativo.png   # logo deitada, branca (header e rodapé)
+│   │       ├── alfapleno-vertical-negativo.png  # logo empilhada, para a arte do topo
 │   │       └── favicon.ico / .png
 │   └── api/
 │       ├── _catalogo.php   # leitura do Directus + cache (usado por todas as páginas)
@@ -111,10 +114,18 @@ docker run -p 8080:80 alfapleno
 
 - **Logos:** os originais ficam em `logo/`. As versões web (fundo transparente,
   redimensionadas e otimizadas) ficam em `public/assets/img/`. A **negativa** é
-  usada sobre fundos escuros (hero, rodapé e topo do header) e a **colorida**
-  sobre fundos claros (header ao rolar). O header alterna entre as duas
-  automaticamente via CSS.
-- **Cores:** variáveis CSS no topo de `public/assets/css/style.css`.
+  usada sobre fundos escuros (rodapé e topo do header) e a **colorida** sobre
+  fundos claros (header ao rolar) — o header alterna entre as duas via CSS.
+- **Duas montagens da mesma arte.** A original é empilhada (símbolo sobre o
+  texto). No header, que tem 54px de altura, isso reduz "ALFA PLENO" a um
+  borrão, então header e rodapé usam a versão **deitada** (símbolo à esquerda,
+  texto à direita). A arte grande do topo da home continua **empilhada**
+  (`alfapleno-vertical-negativo.png`), que é como a marca foi desenhada.
+- **Cores:** variáveis CSS no topo de `public/assets/css/style.css`. O dourado
+  vai de `--ouro-200` a `--ouro-700`; os tons escuros existem porque dourado
+  claro sobre branco não se lê — só `--ouro-700` e `--ouro-600` viram texto.
+  Fundo cheio com texto branco continua azul (`--grad-brand`); o dourado
+  preenche com texto azul-marinho por cima (`--grad-ouro`, no botão de ação).
 
 ## 🗄️ Conteúdo no Directus
 

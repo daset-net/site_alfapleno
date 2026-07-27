@@ -24,9 +24,9 @@ const COL_DEPOIMENTOS = 'site_alunos_depoimentos'; // depoimentos de alunos, por
 const CACHE_TTL    = 600; // segundos
 const HTTP_TIMEOUT = 8;
 
-const COR_AZUL  = 'linear-gradient(140deg,#0f2f6b,#1e56d6)';
-const COR_CIANO = 'linear-gradient(140deg,#1747b8,#22c9ec)';
-const COR_NAVY  = 'linear-gradient(140deg,#061a3a,#1747b8)';
+const COR_NAVY  = 'linear-gradient(140deg,#020637,#0a2a6e)';
+const COR_AZUL  = 'linear-gradient(140deg,#0a2a6e,#0b46bd)';
+const COR_OURO  = 'linear-gradient(140deg,#8a5200,#f0b310)';
 
 // Emoji por palavra-chave, usado só quando o curso não tem emoji nem capa definidos.
 $EMOJIS = [
@@ -668,7 +668,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     return $oa <=> $ob ?: strcmp((string) $a['id_curso'], (string) $b['id_curso']);
   });
 
-  $cores  = [COR_AZUL, COR_CIANO, COR_NAVY];
+  $cores  = [COR_NAVY, COR_AZUL, COR_OURO];
   $cursos = [];
   $i = 0;
 

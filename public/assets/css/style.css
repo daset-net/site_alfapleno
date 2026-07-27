@@ -1,34 +1,46 @@
 /* ==========================================================================
    ALFAPLENO — Folha de estilo principal
-   Paleta baseada na logo (globo azul + monograma "EA")
+   Paleta tirada da logo: o azul-marinho do livro e o dourado do wi-fi.
+   O azul faz a estrutura (topo, rodapé, fundos escuros); o dourado é o acento
+   que aparece — botão de ação, palavra destacada, ícone, brilho do topo.
    ========================================================================== */
 
 :root {
-  /* Cores da marca */
-  --navy-900: #061a3a;
-  --navy-800: #0a2450;
-  --navy-700: #0f2f6b;
-  --blue-600: #1747b8;
-  --blue-500: #1e56d6;
+  /* Azul-marinho — o do livro e do "ALFA" na logo. Faz a estrutura. */
+  --navy-900: #020637;
+  --navy-800: #04123f;
+  --navy-700: #0a2a6e;
+  --blue-600: #063ea8;
+  --blue-500: #0b46bd;
   --blue-400: #2f74f0;
-  --cyan-400: #22c9ec;
-  --cyan-300: #58dcf5;
-  --cyan-200: #9aebfb;
+
+  /* Dourado — o do wi-fi, do play e do "PLENO". É o acento da marca.
+     Os tons escuros existem porque dourado claro sobre branco não se lê:
+     --ouro-700 e --ouro-600 são os que podem virar texto. */
+  --ouro-700: #8a5200;
+  --ouro-600: #a56600;
+  --ouro-500: #e3a50f;
+  --ouro-400: #fcc018;
+  --ouro-300: #ffd75e;
+  --ouro-200: #ffe9a8;
 
   --ink: #0c1a2e;
   --muted: #5a6b85;
-  --line: #e3eaf5;
+  --line: #ece7dc;
   --bg: #ffffff;
-  --bg-soft: #f4f8ff;
-  --bg-softer: #eef4ff;
+  --bg-soft: #fdfaf3;
+  --bg-softer: #f7f1e4;
 
-  --grad-brand: linear-gradient(135deg, var(--navy-700) 0%, var(--blue-500) 45%, var(--cyan-400) 100%);
-  --grad-hero: linear-gradient(140deg, #061a3a 0%, #0f2f6b 40%, #1747b8 75%, #1e88d6 100%);
-  --grad-text: linear-gradient(90deg, var(--blue-500), var(--cyan-400));
+  /* Fundo cheio com texto branco por cima — continua azul, que é o que
+     sustenta o contraste. O dourado entra por --grad-ouro, com texto escuro. */
+  --grad-brand: linear-gradient(135deg, var(--navy-700) 0%, var(--blue-500) 55%, #1a5fd6 100%);
+  --grad-ouro: linear-gradient(135deg, #c88400 0%, #f0b310 45%, #ffd24a 100%);
+  --grad-hero: linear-gradient(140deg, #020637 0%, #04123f 35%, #0a2a6e 72%, #123f96 100%);
+  --grad-text: linear-gradient(90deg, var(--ouro-700), var(--ouro-600));
 
-  --shadow-sm: 0 2px 8px rgba(15, 47, 107, .06);
-  --shadow-md: 0 10px 30px rgba(15, 47, 107, .10);
-  --shadow-lg: 0 24px 60px rgba(15, 47, 107, .18);
+  --shadow-sm: 0 2px 8px rgba(4, 18, 63, .06);
+  --shadow-md: 0 10px 30px rgba(4, 18, 63, .10);
+  --shadow-lg: 0 24px 60px rgba(4, 18, 63, .18);
 
   --radius: 16px;
   --radius-lg: 24px;
@@ -118,11 +130,11 @@ ul { list-style: none; }
 }
 .btn:hover { transform: translateY(-2px); }
 .btn-primary {
-  background: var(--grad-brand);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(30, 86, 214, .35);
+  background: var(--grad-ouro);
+  color: var(--navy-900);
+  box-shadow: 0 8px 22px rgba(174, 108, 0, .34);
 }
-.btn-primary:hover { box-shadow: 0 14px 30px rgba(30, 86, 214, .45); }
+.btn-primary:hover { box-shadow: 0 14px 30px rgba(174, 108, 0, .44); }
 .btn-light {
   background: #fff;
   color: var(--navy-700);
@@ -235,7 +247,7 @@ ul { list-style: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 12% 22%, rgba(88,220,245,.18), transparent 42%),
+    radial-gradient(circle at 12% 22%, rgba(252,192,24,.18), transparent 42%),
     radial-gradient(circle at 88% 78%, rgba(47,116,240,.28), transparent 48%);
   pointer-events: none;
 }
@@ -258,7 +270,7 @@ ul { list-style: none; }
   font-weight: 500;
   margin-bottom: 24px;
 }
-.hero__badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-300); box-shadow: 0 0 12px var(--cyan-300); }
+.hero__badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ouro-300); box-shadow: 0 0 12px var(--ouro-300); }
 .hero h1 {
   font-size: clamp(36px, 5.2vw, 60px);
   line-height: 1.08;
@@ -266,7 +278,7 @@ ul { list-style: none; }
   letter-spacing: -1px;
 }
 .hero h1 .hl {
-  background: linear-gradient(90deg, var(--cyan-300), var(--blue-400));
+  background: linear-gradient(90deg, var(--ouro-300), var(--ouro-400));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .hero p.lead {
@@ -292,7 +304,7 @@ ul { list-style: none; }
 }
 .hero__feats li { display: flex; align-items: center; gap: 10px; }
 .hero__feats i {
-  font-size: 22px; color: var(--cyan-300);
+  font-size: 22px; color: var(--ouro-300);
   flex-shrink: 0;
 }
 .hero__feats strong { display: block; font-size: 14px; font-weight: 600; line-height: 1.25; }
@@ -315,10 +327,10 @@ ul { list-style: none; }
   backdrop-filter: blur(6px);
 }
 .hero__stats .stat > i {
-  font-size: 26px; color: var(--cyan-300);
+  font-size: 26px; color: var(--ouro-300);
   width: 52px; height: 52px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(88,220,245,.12);
+  background: rgba(252,192,24,.14);
   border-radius: 12px;
 }
 .hero__stats .stat strong {
@@ -341,7 +353,7 @@ ul { list-style: none; }
 .hero__visual .glow {
   position: absolute;
   width: 440px; height: 440px;
-  background: radial-gradient(circle, rgba(88,220,245,.3), transparent 62%);
+  background: radial-gradient(circle, rgba(252,192,24,.3), transparent 62%);
   filter: blur(24px);
   border-radius: 50%;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -385,7 +397,7 @@ ul { list-style: none; }
   gap: 9px;
   white-space: nowrap;
 }
-.hero__chip i { font-size: 18px; color: var(--cyan-300); }
+.hero__chip i { font-size: 18px; color: var(--ouro-300); }
 .hero__chip--1 { top: 10%; left: -7%; animation: float 5s ease-in-out infinite; }
 .hero__chip--2 { top: 44%; right: -8%; animation: float 6.5s ease-in-out infinite .4s; }
 .hero__chip--3 { bottom: 9%; left: -4%; animation: float 7s ease-in-out infinite .8s; }
@@ -596,7 +608,7 @@ ul { list-style: none; }
 .cta-band::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(88,220,245,.3), transparent 50%);
+  background: radial-gradient(circle at 80% 20%, rgba(252,192,24,.3), transparent 50%);
 }
 .cta-band h2 { position: relative; font-size: clamp(26px, 3.5vw, 38px); font-weight: 700; }
 .cta-band p { position: relative; margin: 14px auto 30px; max-width: 560px; color: rgba(255,255,255,.85); }
@@ -617,7 +629,7 @@ ul { list-style: none; }
   padding: 30px;
   box-shadow: var(--shadow-sm);
 }
-.testi .stars { color: #ffb400; margin-bottom: 14px; }
+.testi .stars { color: #b87c00; margin-bottom: 14px; }
 .testi p { font-size: 15px; color: var(--ink); margin-bottom: 22px; }
 .testi .who { display: flex; align-items: center; gap: 12px; }
 .testi .who .av {
@@ -712,8 +724,8 @@ ul { list-style: none; }
 .form-polo {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px; margin-bottom: 18px;
-  border-radius: 12px; border: 1px solid var(--cyan-200);
-  background: #f1f7ff; color: var(--navy-700);
+  border-radius: 12px; border: 1px solid var(--ouro-200);
+  background: #fff9ec; color: var(--navy-700);
   font-size: 14px; line-height: 1.35;
 }
 .form-polo i { font-size: 18px; flex-shrink: 0; }
@@ -810,7 +822,7 @@ ul { list-style: none; }
 .footer h5 { color: #fff; font-size: 16px; margin-bottom: 18px; }
 .footer ul li { margin-bottom: 10px; }
 .footer ul li a { font-size: 14px; transition: color .2s; }
-.footer ul li a:hover { color: var(--cyan-300); }
+.footer ul li a:hover { color: var(--ouro-300); }
 .footer__social { display: flex; gap: 12px; margin-top: 20px; }
 .footer__social a {
   width: 40px; height: 40px; border-radius: 50%;
@@ -893,7 +905,7 @@ ul { list-style: none; }
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(circle at 12% 18%, rgba(88,220,245,.22), transparent 42%),
+    radial-gradient(circle at 12% 18%, rgba(252,192,24,.22), transparent 42%),
     radial-gradient(circle at 88% 82%, rgba(47,116,240,.35), transparent 46%);
   pointer-events: none;
 }
@@ -922,7 +934,7 @@ ul { list-style: none; }
 }
 .curso-hero__badge .dot {
   width: 8px; height: 8px; border-radius: 50%;
-  background: var(--cyan-300); box-shadow: 0 0 12px var(--cyan-300);
+  background: var(--ouro-300); box-shadow: 0 0 12px var(--ouro-300);
 }
 .curso-hero h1 {
   font-size: clamp(30px, 4vw, 48px);
@@ -931,7 +943,7 @@ ul { list-style: none; }
 }
 .curso-hero__nome {
   font-size: 15px; font-weight: 600;
-  color: var(--cyan-200);
+  color: var(--ouro-200);
   margin-bottom: 18px;
 }
 .curso-hero .lead {
@@ -951,7 +963,7 @@ ul { list-style: none; }
   padding: 8px 14px; border-radius: 100px;
   font-size: 14px;
 }
-.curso-hero__marcas i { color: var(--cyan-300); }
+.curso-hero__marcas i { color: var(--ouro-300); }
 .curso-hero__actions { display: flex; flex-wrap: wrap; gap: 14px; }
 
 /* --- Cartão de oferta ---------------------------------------------------- */

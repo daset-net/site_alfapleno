@@ -46,7 +46,7 @@ $vizinhas = array_slice(array_values(array_filter(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?= e('Unidade ALFAPLENO em ' . ($unidade['cidade'] !== '' ? $unidade['cidade'] : $unidade['nome']) . ($unidade['uf'] !== '' ? ' (' . $unidade['uf'] . ')' : '') . '. Cursos 100% online com matrícula por esta unidade.') ?>">
-  <meta name="theme-color" content="#0f2f6b">
+  <meta name="theme-color" content="#04123f">
   <title><?= e($titulo . ' · Unidades ALFAPLENO') ?></title>
 
   <meta property="og:title" content="<?= e('Unidade ALFAPLENO · ' . $titulo) ?>">
