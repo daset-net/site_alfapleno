@@ -61,7 +61,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?= e($metaDescricao) ?>">
-  <meta name="theme-color" content="#04123f">
+  <meta name="theme-color" content="#f5bb14">
   <title><?= e($tituloPagina) ?></title>
 
   <meta property="og:title" content="<?= e($curso['nome']) ?> · ALFAPLENO">
@@ -86,7 +86,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="index.php" class="brand">
-        <img class="brand__neg" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
+        <img class="brand__neg" src="assets/img/alfapleno-marinho.png" alt="ALFAPLENO">
         <img class="brand__cor" src="assets/img/alfapleno.png" alt="ALFAPLENO">
       </a>
       <nav class="nav">

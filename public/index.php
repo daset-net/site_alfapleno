@@ -48,7 +48,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?= e(config('seo_descricao', 'ALFAPLENO — Educação que transforma. Supletivo EJA, Cursos Técnicos e Cursos Livres com certificação reconhecida, 100% online e no seu ritmo.')) ?>">
-  <meta name="theme-color" content="#04123f">
+  <meta name="theme-color" content="#f5bb14">
   <title><?= e(config('seo_titulo', 'ALFAPLENO · Educação que transforma vidas')) ?></title>
 
   <link rel="icon" href="assets/img/favicon.ico" sizes="any">
@@ -68,7 +68,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
     <div class="container header__inner">
       <a href="#home" class="brand">
         <!-- negativa sobre o hero escuro, colorida quando o header fica branco -->
-        <img class="brand__neg" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
+        <img class="brand__neg" src="assets/img/alfapleno-marinho.png" alt="ALFAPLENO">
         <img class="brand__cor" src="assets/img/alfapleno.png" alt="ALFAPLENO">
       </a>
 
@@ -126,7 +126,7 @@ function selosModalidade(array $tags, int $limite = 3): string {
           <?php if ($heroImg !== ''): ?>
             <img src="<?= e($heroImg) ?>&w=1200" alt="Estude na ALFAPLENO">
           <?php else: ?>
-            <img class="hero__media-logo" src="assets/img/alfapleno-vertical-negativo.png" alt="ALFAPLENO">
+            <img class="hero__media-logo" src="assets/img/alfapleno-vertical-marinho.png" alt="ALFAPLENO">
           <?php endif; ?>
         </div>
         <div class="hero__chip hero__chip--1"><i class="ri-award-fill"></i> Certificado reconhecido</div>

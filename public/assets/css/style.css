@@ -1491,3 +1491,116 @@ ul { list-style: none; }
   .unid-hero__actions .btn { width: 100%; justify-content: center; }
   .unid-busca { flex-direction: column; align-items: stretch; }
 }
+
+/* ==========================================================================
+   TOPO DOURADO
+   O dourado é a cor dominante do site e domina onde mais se vê: o topo da home,
+   da ficha de curso e da lista de unidades.
+
+   Sobre o dourado da marca, texto branco dá 1,9:1 — ilegível. Por isso tudo
+   aqui dentro é azul-marinho, que sobre o mesmo dourado passa de 8:1. O que
+   continua escuro no site (faixa de chamada, capa de curso, rodapé) segue com
+   --grad-hero, e é o contraponto que impede o dourado de cansar.
+   ========================================================================== */
+.hero,
+.curso-hero,
+.unid-hero {
+  background:
+    radial-gradient(1100px 620px at 78% 16%, rgba(255,255,255,.55), transparent 62%),
+    linear-gradient(150deg, #e8a50c 0%, #f5bb14 38%, #fcc71f 68%, #ffd85c 100%);
+  color: var(--navy-900);
+}
+.hero::before,
+.unid-hero::before {
+  background:
+    radial-gradient(circle at 12% 20%, rgba(255,255,255,.40), transparent 44%),
+    radial-gradient(circle at 88% 82%, rgba(2, 6, 55, .10), transparent 48%);
+}
+
+/* Textos secundários: azul-marinho rebaixado, nunca branco rebaixado. */
+.hero p.lead,
+.curso-hero .lead,
+.unid-hero .lead { color: rgba(2, 6, 55, .78); }
+.hero__feats span,
+.hero__stats .stat span { color: rgba(2, 6, 55, .66); }
+.unid-hero__nome { color: rgba(2, 6, 55, .72); }
+.curso-hero__nome { color: var(--navy-700); }
+.crumbs { color: rgba(2, 6, 55, .66); }
+.crumbs span,
+.crumbs a:hover { color: var(--navy-900); }
+
+/* Pílulas e cartões que eram vidro branco sobre escuro viram vidro claro
+   sobre dourado, com a borda em azul-marinho translúcido. */
+.hero__badge,
+.curso-hero__badge,
+.curso-hero__marcas li,
+.unid-hero__marcas li {
+  background: rgba(255,255,255,.42);
+  border-color: rgba(2, 6, 55, .16);
+}
+.hero__stats .stat {
+  background: rgba(255,255,255,.34);
+  border-color: rgba(2, 6, 55, .14);
+}
+
+/* Ícones e pontinhos: o dourado claro sumiria no fundo dourado. */
+.hero__badge .dot,
+.curso-hero__badge .dot {
+  background: var(--navy-700);
+  box-shadow: 0 0 12px rgba(2, 6, 55, .45);
+}
+.hero__feats i,
+.curso-hero__marcas i,
+.hero__stats .stat > i { color: var(--navy-700); }
+.hero__stats .stat > i { background: rgba(2, 6, 55, .09); }
+.hero__visual .glow { background: radial-gradient(circle, rgba(255,255,255,.55), transparent 62%); }
+
+/* A palavra destacada do título não pode ser dourada sobre dourado nem branca
+   (1,9:1). Vira o inverso: bloco azul-marinho com o texto claro dentro. */
+.hero h1 .hl {
+  background: var(--navy-900);
+  -webkit-text-fill-color: #fff;
+  color: #fff;
+  padding: 0 .16em;
+  border-radius: .1em;
+}
+
+/* Botão de ação dentro do topo: dourado sobre dourado desaparece, então aqui
+   ele inverte — azul-marinho cheio com texto branco. Fora do topo, sobre fundo
+   claro, ele continua dourado. */
+.hero__actions .btn-primary,
+.curso-hero__actions .btn-primary,
+.unid-hero__actions .btn-primary {
+  background: var(--navy-900);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(2, 6, 55, .30);
+}
+.hero__actions .btn-primary:hover,
+.curso-hero__actions .btn-primary:hover,
+.unid-hero__actions .btn-primary:hover { box-shadow: 0 14px 30px rgba(2, 6, 55, .40); }
+
+/* Botão fantasma claro: era vidro branco com texto branco. */
+.hero__actions .btn-ghost-light,
+.curso-hero__actions .btn-ghost-light,
+.unid-hero__actions .btn-ghost-light {
+  background: rgba(2, 6, 55, .10);
+  border-color: rgba(2, 6, 55, .28);
+  color: var(--navy-900);
+}
+
+/* Balões flutuantes: o azul translúcido sobre o dourado dava um oliva sujo.
+   Azul-marinho cheio devolve o contraste da logo. */
+.hero__chip {
+  background: rgba(2, 6, 55, .92);
+  border-color: rgba(2, 6, 55, .92);
+}
+
+/* Cabeçalho enquanto está por cima do topo dourado (antes de rolar). */
+.header:not(.scrolled) .nav a { color: var(--navy-900); }
+.header:not(.scrolled) .nav a:hover { background: rgba(2, 6, 55, .10); }
+.header:not(.scrolled) .nav a.ativo { color: #fff; background: rgba(2, 6, 55, .82); }
+.header:not(.scrolled) .header__cta .btn-primary {
+  background: var(--navy-900);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(2, 6, 55, .32);
+}
