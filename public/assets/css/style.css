@@ -1,41 +1,42 @@
 /* ==========================================================================
    ALFAPLENO — Folha de estilo principal
-   Paleta tirada da logo: o azul-marinho do livro e o dourado do wi-fi.
-   O azul faz a estrutura (topo, rodapé, fundos escuros); o dourado é o acento
-   que aparece — botão de ação, palavra destacada, ícone, brilho do topo.
+   Paleta tirada da logo: o azul forte do livro e do "ALFA", e o laranja do
+   wi-fi, do play e do "PLENO".
+   O azul é o fundo — topo das páginas, faixas cheias, rodapé. O laranja é o
+   acento que chama: botão de ação, ícone, palavra destacada, número, selo.
    ========================================================================== */
 
 :root {
-  /* Azul-marinho — o do livro e do "ALFA" na logo. Faz a estrutura. */
-  --navy-900: #020637;
-  --navy-800: #04123f;
-  --navy-700: #0a2a6e;
-  --blue-600: #063ea8;
-  --blue-500: #0b46bd;
-  --blue-400: #2f74f0;
+  /* Azul — do marinho profundo ao azul forte da logo. É o fundo do site. */
+  --navy-900: #03123f;
+  --navy-800: #062057;
+  --navy-700: #0a3178;
+  --blue-600: #0c3f9e;
+  --blue-500: #1250cf;
+  --blue-400: #3b7cf5;
 
-  /* Dourado — o do wi-fi, do play e do "PLENO". É o acento da marca.
-     Os tons escuros existem porque dourado claro sobre branco não se lê:
+  /* Laranja — o acento da marca.
+     Os tons escuros existem porque laranja claro sobre branco não se lê:
      --ouro-700 e --ouro-600 são os que podem virar texto. */
-  --ouro-700: #8a5200;
-  --ouro-600: #a56600;
-  --ouro-500: #e3a50f;
-  --ouro-400: #fcc018;
-  --ouro-300: #ffd75e;
-  --ouro-200: #ffe9a8;
+  --ouro-700: #97400a;
+  --ouro-600: #c2570b;
+  --ouro-500: #ef7c11;
+  --ouro-400: #ff9426;
+  --ouro-300: #ffae57;
+  --ouro-200: #ffd9b0;
 
   --ink: #0c1a2e;
   --muted: #5a6b85;
-  --line: #ece7dc;
+  --line: #e7e9f2;
   --bg: #ffffff;
-  --bg-soft: #fdfaf3;
-  --bg-softer: #f7f1e4;
+  --bg-soft: #f7f9fd;
+  --bg-softer: #edf2fb;
 
-  /* Fundo cheio com texto branco por cima — continua azul, que é o que
-     sustenta o contraste. O dourado entra por --grad-ouro, com texto escuro. */
-  --grad-brand: linear-gradient(135deg, var(--navy-700) 0%, var(--blue-500) 55%, #1a5fd6 100%);
-  --grad-ouro: linear-gradient(135deg, #c88400 0%, #f0b310 45%, #ffd24a 100%);
-  --grad-hero: linear-gradient(140deg, #020637 0%, #04123f 35%, #0a2a6e 72%, #123f96 100%);
+  /* Fundo cheio com texto branco por cima — azul, que é o que sustenta o
+     contraste. O laranja entra por --grad-ouro, com texto escuro. */
+  --grad-brand: linear-gradient(135deg, var(--navy-700) 0%, var(--blue-500) 55%, #2f74f0 100%);
+  --grad-ouro: linear-gradient(135deg, #d95f07 0%, #f5850f 45%, #ffa73a 100%);
+  --grad-hero: linear-gradient(140deg, #03123f 0%, #062057 32%, #0c3f9e 70%, #1a5fd6 100%);
   --grad-text: linear-gradient(90deg, var(--ouro-700), var(--ouro-600));
 
   --shadow-sm: 0 2px 8px rgba(4, 18, 63, .06);
@@ -131,10 +132,11 @@ ul { list-style: none; }
 .btn:hover { transform: translateY(-2px); }
 .btn-primary {
   background: var(--grad-ouro);
+  /* texto azul-marinho: sobre o laranja da marca dá ~8:1, branco daria 3:1 */
   color: var(--navy-900);
-  box-shadow: 0 8px 22px rgba(174, 108, 0, .34);
+  box-shadow: 0 8px 22px rgba(217, 95, 7, .34);
 }
-.btn-primary:hover { box-shadow: 0 14px 30px rgba(174, 108, 0, .44); }
+.btn-primary:hover { box-shadow: 0 14px 30px rgba(217, 95, 7, .46); }
 .btn-light {
   background: #fff;
   color: var(--navy-700);
@@ -235,9 +237,7 @@ ul { list-style: none; }
    ========================================================================== */
 .hero {
   position: relative;
-  background:
-    radial-gradient(1200px 600px at 78% 18%, rgba(23,71,184,.55), transparent 60%),
-    linear-gradient(160deg, #05132b 0%, #071c3f 45%, #0a2450 100%);
+  background: var(--grad-hero);
   color: #fff;
   padding: 150px 0 110px;
   overflow: hidden;
@@ -247,8 +247,8 @@ ul { list-style: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 12% 22%, rgba(252,192,24,.18), transparent 42%),
-    radial-gradient(circle at 88% 78%, rgba(47,116,240,.28), transparent 48%);
+    radial-gradient(circle at 12% 22%, rgba(255,148,38,.24), transparent 44%),
+    radial-gradient(circle at 88% 78%, rgba(59,124,245,.34), transparent 50%);
   pointer-events: none;
 }
 .hero__grid {
@@ -330,7 +330,7 @@ ul { list-style: none; }
   font-size: 26px; color: var(--ouro-300);
   width: 52px; height: 52px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(252,192,24,.14);
+  background: rgba(255,148,38,.14);
   border-radius: 12px;
 }
 .hero__stats .stat strong {
@@ -353,7 +353,7 @@ ul { list-style: none; }
 .hero__visual .glow {
   position: absolute;
   width: 440px; height: 440px;
-  background: radial-gradient(circle, rgba(252,192,24,.3), transparent 62%);
+  background: radial-gradient(circle, rgba(255,148,38,.3), transparent 62%);
   filter: blur(24px);
   border-radius: 50%;
   top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -608,7 +608,7 @@ ul { list-style: none; }
 .cta-band::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(252,192,24,.3), transparent 50%);
+  background: radial-gradient(circle at 80% 20%, rgba(255,148,38,.3), transparent 50%);
 }
 .cta-band h2 { position: relative; font-size: clamp(26px, 3.5vw, 38px); font-weight: 700; }
 .cta-band p { position: relative; margin: 14px auto 30px; max-width: 560px; color: rgba(255,255,255,.85); }
@@ -629,7 +629,7 @@ ul { list-style: none; }
   padding: 30px;
   box-shadow: var(--shadow-sm);
 }
-.testi .stars { color: #b87c00; margin-bottom: 14px; }
+.testi .stars { color: var(--ouro-500); margin-bottom: 14px; }
 .testi p { font-size: 15px; color: var(--ink); margin-bottom: 22px; }
 .testi .who { display: flex; align-items: center; gap: 12px; }
 .testi .who .av {
@@ -725,7 +725,7 @@ ul { list-style: none; }
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px; margin-bottom: 18px;
   border-radius: 12px; border: 1px solid var(--ouro-200);
-  background: #fff9ec; color: var(--navy-700);
+  background: #fff4e8; color: var(--navy-700);
   font-size: 14px; line-height: 1.35;
 }
 .form-polo i { font-size: 18px; flex-shrink: 0; }
@@ -905,7 +905,7 @@ ul { list-style: none; }
   content: '';
   position: absolute; inset: 0;
   background:
-    radial-gradient(circle at 12% 18%, rgba(252,192,24,.22), transparent 42%),
+    radial-gradient(circle at 12% 18%, rgba(255,148,38,.22), transparent 42%),
     radial-gradient(circle at 88% 82%, rgba(47,116,240,.35), transparent 46%);
   pointer-events: none;
 }
@@ -1493,114 +1493,118 @@ ul { list-style: none; }
 }
 
 /* ==========================================================================
-   TOPO DOURADO
-   O dourado é a cor dominante do site e domina onde mais se vê: o topo da home,
-   da ficha de curso e da lista de unidades.
+   TOPO AZUL COM ACENTO LARANJA
+   O azul forte é o fundo dos três topos (home, ficha de curso, unidades) e das
+   faixas cheias. Sobre ele o texto é branco (13:1) e o laranja aparece só onde
+   precisa puxar o olho: botão, ícone, pontinho, palavra destacada.
 
-   Sobre o dourado da marca, texto branco dá 1,9:1 — ilegível. Por isso tudo
-   aqui dentro é azul-marinho, que sobre o mesmo dourado passa de 8:1. O que
-   continua escuro no site (faixa de chamada, capa de curso, rodapé) segue com
-   --grad-hero, e é o contraponto que impede o dourado de cansar.
+   O laranja claro (--ouro-300/400) só existe sobre azul; sobre branco ele cai
+   para 2:1, e aí quem entra é --ouro-600/700 (texto) ou o gradiente cheio
+   (--grad-ouro) com texto azul-marinho por cima.
    ========================================================================== */
 .hero,
 .curso-hero,
 .unid-hero {
   background:
-    radial-gradient(1100px 620px at 78% 16%, rgba(255,255,255,.55), transparent 62%),
-    linear-gradient(150deg, #e8a50c 0%, #f5bb14 38%, #fcc71f 68%, #ffd85c 100%);
-  color: var(--navy-900);
+    radial-gradient(1100px 620px at 76% 12%, rgba(59,124,245,.55), transparent 62%),
+    var(--grad-hero);
+  color: #fff;
 }
 .hero::before,
 .unid-hero::before {
   background:
-    radial-gradient(circle at 12% 20%, rgba(255,255,255,.40), transparent 44%),
-    radial-gradient(circle at 88% 82%, rgba(2, 6, 55, .10), transparent 48%);
+    radial-gradient(circle at 10% 18%, rgba(255,148,38,.26), transparent 46%),
+    radial-gradient(circle at 90% 84%, rgba(255,255,255,.10), transparent 48%);
+}
+.curso-hero::before {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,148,38,.24), transparent 44%),
+    radial-gradient(circle at 88% 82%, rgba(59,124,245,.34), transparent 48%);
 }
 
-/* Textos secundários: azul-marinho rebaixado, nunca branco rebaixado. */
-.hero p.lead,
-.curso-hero .lead,
-.unid-hero .lead { color: rgba(2, 6, 55, .78); }
-.hero__feats span,
-.hero__stats .stat span { color: rgba(2, 6, 55, .66); }
-.unid-hero__nome { color: rgba(2, 6, 55, .72); }
-.curso-hero__nome { color: var(--navy-700); }
-.crumbs { color: rgba(2, 6, 55, .66); }
-.crumbs span,
-.crumbs a:hover { color: var(--navy-900); }
+/* Um fio laranja fecha o topo por baixo e amarra a marca à estrutura. */
+.curso-hero,
+.unid-hero { border-bottom: 4px solid var(--ouro-500); }
 
-/* Pílulas e cartões que eram vidro branco sobre escuro viram vidro claro
-   sobre dourado, com a borda em azul-marinho translúcido. */
-.hero__badge,
-.curso-hero__badge,
-.curso-hero__marcas li,
-.unid-hero__marcas li {
-  background: rgba(255,255,255,.42);
-  border-color: rgba(2, 6, 55, .16);
-}
-.hero__stats .stat {
-  background: rgba(255,255,255,.34);
-  border-color: rgba(2, 6, 55, .14);
-}
-
-/* Ícones e pontinhos: o dourado claro sumiria no fundo dourado. */
-.hero__badge .dot,
-.curso-hero__badge .dot {
-  background: var(--navy-700);
-  box-shadow: 0 0 12px rgba(2, 6, 55, .45);
-}
-.hero__feats i,
-.curso-hero__marcas i,
-.hero__stats .stat > i { color: var(--navy-700); }
-.hero__stats .stat > i { background: rgba(2, 6, 55, .09); }
-.hero__visual .glow { background: radial-gradient(circle, rgba(255,255,255,.55), transparent 62%); }
-
-/* A palavra destacada do título não pode ser dourada sobre dourado nem branca
-   (1,9:1). Vira o inverso: bloco azul-marinho com o texto claro dentro. */
+/* A palavra destacada do título: laranja claro cheio sobre o azul (9:1). */
 .hero h1 .hl {
-  background: var(--navy-900);
-  -webkit-text-fill-color: #fff;
-  color: #fff;
-  padding: 0 .16em;
-  border-radius: .1em;
+  background: linear-gradient(90deg, var(--ouro-400), var(--ouro-300));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Botão de ação dentro do topo: dourado sobre dourado desaparece, então aqui
-   ele inverte — azul-marinho cheio com texto branco. Fora do topo, sobre fundo
-   claro, ele continua dourado. */
+/* Botão de ação no topo azul: laranja cheio com texto azul-marinho — é o
+   ponto mais quente da página, e é onde se clica. */
 .hero__actions .btn-primary,
 .curso-hero__actions .btn-primary,
-.unid-hero__actions .btn-primary {
-  background: var(--navy-900);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(2, 6, 55, .30);
+.unid-hero__actions .btn-primary,
+.header:not(.scrolled) .header__cta .btn-primary {
+  background: var(--grad-ouro);
+  color: var(--navy-900);
+  box-shadow: 0 10px 26px rgba(217, 95, 7, .42);
 }
 .hero__actions .btn-primary:hover,
 .curso-hero__actions .btn-primary:hover,
-.unid-hero__actions .btn-primary:hover { box-shadow: 0 14px 30px rgba(2, 6, 55, .40); }
+.unid-hero__actions .btn-primary:hover { box-shadow: 0 16px 34px rgba(217, 95, 7, .52); }
 
-/* Botão fantasma claro: era vidro branco com texto branco. */
-.hero__actions .btn-ghost-light,
-.curso-hero__actions .btn-ghost-light,
-.unid-hero__actions .btn-ghost-light {
-  background: rgba(2, 6, 55, .10);
-  border-color: rgba(2, 6, 55, .28);
+/* Ícones e pontinhos do topo em laranja claro. */
+.hero__badge .dot,
+.curso-hero__badge .dot {
+  background: var(--ouro-400);
+  box-shadow: 0 0 12px rgba(255,148,38,.85);
+}
+.hero__feats i,
+.curso-hero__marcas i,
+.hero__stats .stat > i { color: var(--ouro-300); }
+.hero__stats .stat > i { background: rgba(255,148,38,.16); }
+.hero__chip i { color: var(--ouro-300); }
+.hero__visual .glow { background: radial-gradient(circle, rgba(255,148,38,.34), transparent 62%); }
+.curso-hero__nome { color: var(--ouro-200); }
+
+/* Números do topo em laranja claro: é o dado que se lê primeiro. */
+.hero__stats .stat strong { color: var(--ouro-300); }
+
+/* ==========================================================================
+   ACENTO LARANJA FORA DO TOPO
+   No corpo claro do site o azul continua nos títulos e nos fundos cheios; o
+   laranja marca o que é ação ou destaque.
+   ========================================================================== */
+.section-head .eyebrow,
+.oferta__cat { color: var(--ouro-700); background: #fff4e8; }
+.contador__titulo,
+.form-etapa { color: var(--ouro-700); }
+.testi .stars { color: var(--ouro-500); }
+
+.cat-card::after { background: var(--grad-ouro); }
+.cat-card .ic { background: #fff4e8; color: var(--ouro-600); }
+.cat-card .more { color: var(--ouro-700); }
+
+.feat .ic { background: var(--grad-ouro); color: var(--navy-900); }
+.inclui i { background: var(--grad-ouro); color: var(--navy-900); }
+
+.curso-box h3 i,
+.lista-check i,
+.oferta__lista i,
+.contact-info .line .ic,
+.faq summary::after { color: var(--ouro-600); }
+.contact-info .line .ic { background: #fff4e8; }
+.grade-lista__n { background: #fff4e8; color: var(--ouro-700); }
+
+.filter-bar button:hover { border-color: var(--ouro-400); color: var(--ouro-700); }
+.filter-bar button.active {
+  background: var(--grad-ouro);
   color: var(--navy-900);
+  box-shadow: 0 8px 20px rgba(217, 95, 7, .32);
 }
+.unid-card__uf { background: var(--grad-ouro); color: var(--navy-900); }
+.unid-card:hover { border-color: var(--ouro-300); }
+.course-card:hover { border-color: var(--ouro-200); }
 
-/* Balões flutuantes: o azul translúcido sobre o dourado dava um oliva sujo.
-   Azul-marinho cheio devolve o contraste da logo. */
-.hero__chip {
-  background: rgba(2, 6, 55, .92);
-  border-color: rgba(2, 6, 55, .92);
-}
+.footer__social a:hover { background: var(--ouro-500); }
+.footer ul li a:hover { color: var(--ouro-300); }
 
-/* Cabeçalho enquanto está por cima do topo dourado (antes de rolar). */
-.header:not(.scrolled) .nav a { color: var(--navy-900); }
-.header:not(.scrolled) .nav a:hover { background: rgba(2, 6, 55, .10); }
-.header:not(.scrolled) .nav a.ativo { color: #fff; background: rgba(2, 6, 55, .82); }
-.header:not(.scrolled) .header__cta .btn-primary {
-  background: var(--navy-900);
-  color: #fff;
-  box-shadow: 0 8px 22px rgba(2, 6, 55, .32);
-}
+/* Faixas cheias (chamada final, CTA, topo do formulário) ficam azuis, com o
+   brilho laranja por cima — é o contraponto que sustenta o site claro. */
+.cta-band::before { background: radial-gradient(circle at 80% 20%, rgba(255,148,38,.34), transparent 52%); }
+.cta-band .btn-primary,
+.curso-final .btn-primary { background: var(--grad-ouro); color: var(--navy-900); }

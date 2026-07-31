@@ -24,9 +24,9 @@ const COL_DEPOIMENTOS = 'site_alunos_depoimentos'; // depoimentos de alunos, por
 const CACHE_TTL    = 600; // segundos
 const HTTP_TIMEOUT = 8;
 
-const COR_NAVY  = 'linear-gradient(140deg,#020637,#0a2a6e)';
-const COR_AZUL  = 'linear-gradient(140deg,#0a2a6e,#0b46bd)';
-const COR_OURO  = 'linear-gradient(140deg,#8a5200,#f0b310)';
+const COR_NAVY  = 'linear-gradient(140deg,#03123f,#0a3178)';
+const COR_AZUL  = 'linear-gradient(140deg,#0a3178,#1250cf)';
+const COR_OURO  = 'linear-gradient(140deg,#97400a,#f5850f)';
 
 // Emoji por palavra-chave, usado só quando o curso não tem emoji nem capa definidos.
 $EMOJIS = [

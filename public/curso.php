@@ -66,7 +66,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?= e($metaDescricao) ?>">
-  <meta name="theme-color" content="#f5bb14">
+  <meta name="theme-color" content="#0c3f9e">
   <title><?= e($tituloPagina) ?></title>
 
   <meta property="og:title" content="<?= e($curso['nome']) ?> · ALFAPLENO">
@@ -91,7 +91,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="index.php" class="brand">
-        <img class="brand__neg" src="assets/img/alfapleno-marinho.png" alt="ALFAPLENO">
+        <img class="brand__neg" src="assets/img/alfapleno-negativo.png" alt="ALFAPLENO">
         <img class="brand__cor" src="assets/img/alfapleno.png" alt="ALFAPLENO">
       </a>
       <nav class="nav">
@@ -320,7 +320,7 @@ $whatsapp = 'https://wa.me/' . config('whatsapp', '5500000000000') . '?text='
   <section class="section section--soft" id="matricula">
     <div class="container contact-grid">
       <div class="contact-info">
-        <span class="eyebrow" style="display:inline-block;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--blue-500);background:#fff;padding:6px 16px;border-radius:100px;margin-bottom:16px">Matrícula</span>
+        <span class="eyebrow" style="display:inline-block;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--ouro-700);background:#fff;padding:6px 16px;border-radius:100px;margin-bottom:16px">Matrícula</span>
         <h2>Comece <span class="gradient-text">hoje</span> — a vaga é sua</h2>
         <p>Preencha seus dados e conclua a matrícula em <strong><?= e($curso['nome']) ?></strong> agora, na condição de <strong>R$ <?= e($curso['preco']) ?><?= $curso['parcelas'] ? ' em ' . (int) $curso['parcelas'] . 'x' : '' ?></strong>. Ao final você já recebe o número da matrícula e os dados de acesso à plataforma.</p>
 
