@@ -830,19 +830,19 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       'desconto'       => (int) ($l['desconto'] ?? 0),
       'valorTotal'     => moeda($l['valor_total'] ?? 0),
       // O que o cliente paga no fim: a parcela anunciada vezes a quantidade.
+      // É também o valor à vista, no PIX ou no boleto — pagar de uma vez não
+      // tem desconto além do que já está na parcela.
       //
-      // Nao e o valor_total do catalogo. Na ALFAPLENO ele esta tres centavos
-      // fora em nove cursos (arredondamento) e R$ 355 fora no Saude Bucal, e
-      // total que nao e a soma das proprias parcelas e total que ninguem paga.
+      // A conta é feita aqui, e não guardada numa coluna, porque o preço gira
+      // por ciclo de oferta: coluna gravada envelhece no dia em que a parcela
+      // muda, e aí o atendimento anuncia um total que a página já não pratica.
+      //
+      // Também não é o valor_total do catálogo. Na ALFAPLENO ele está três
+      // centavos fora em nove cursos (arredondamento) e R$ 355 fora no Saúde
+      // Bucal — total que não é a soma das próprias parcelas é total que
+      // ninguém paga.
       'valorPago'      => moeda($parcelas * (float) ($l['valor_parcela'] ?? 0)),
-      // A vista e o mesmo total, pago de uma vez no PIX ou no boleto - nao tem
-      // desconto proprio. O campo do catalogo manda; sem ele, a conta e a
-      // parcela com desconto vezes a quantidade, que e o que a pagina anuncia.
-      // Existir com esse nome e o que impede o atendimento de inventar um valor
-      // a vista a partir de outro numero qualquer da resposta.
-      'valorAvista'    => trim((string) ($l['valor_final_avista'] ?? '')) !== ''
-                            ? moeda($l['valor_final_avista'])
-                            : moeda($parcelas * (float) ($l['valor_parcela'] ?? 0)),
+
       'codigo'         => $l['codigo_unico_especial'] ?? $id,
 
       // Codigo da instituicao parceira que certifica (SISTEC para tecnico, INEP
@@ -894,8 +894,7 @@ function catalogo(): array {
 
   $precos    = buscarColecao(COL_PRECOS, ['fields' =>
     'id_curso,categoria,curso,ingresso,desconto,qtd_parcela,valor_parcela,'
-    . 'valor_parcela_normal,valor_total,valor_final_avista,codigo_unico_especial,'
-    . 'codigo_mec_parceiro,ativo']);
+    . 'valor_parcela_normal,valor_total,codigo_unico_especial,codigo_mec_parceiro,ativo']);
   $editorial = buscarColecao(COL_CURSOS, ['fields' => '*']);
 
   if ($precos !== null) {
