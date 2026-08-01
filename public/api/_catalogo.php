@@ -829,6 +829,12 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       'parcelas'       => $parcelas,
       'desconto'       => (int) ($l['desconto'] ?? 0),
       'valorTotal'     => moeda($l['valor_total'] ?? 0),
+      // O que o cliente paga no fim: a parcela anunciada vezes a quantidade.
+      //
+      // Nao e o valor_total do catalogo. Na ALFAPLENO ele esta tres centavos
+      // fora em nove cursos (arredondamento) e R$ 355 fora no Saude Bucal, e
+      // total que nao e a soma das proprias parcelas e total que ninguem paga.
+      'valorPago'      => moeda($parcelas * (float) ($l['valor_parcela'] ?? 0)),
       // A vista e o mesmo total, pago de uma vez no PIX ou no boleto - nao tem
       // desconto proprio. O campo do catalogo manda; sem ele, a conta e a
       // parcela com desconto vezes a quantidade, que e o que a pagina anuncia.
