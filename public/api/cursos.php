@@ -123,7 +123,7 @@ function cursoResumo(array $c): array {
   $link = 'https://' . dominioDoSite()
         . '/curso.php?id=' . rawurlencode($c['slug'] !== '' ? $c['slug'] : $c['id']);
 
-  return [
+  $dados = [
     // O código é a chave para pedir este mesmo curso de novo, sem depender de
     // acertar o nome. É o slug, e não o id_curso, porque há id repetido entre
     // cursos diferentes no catálogo — quem consulta por id repetido pode
@@ -146,6 +146,13 @@ function cursoResumo(array $c): array {
     // acaba clicando num link que não existe.
     'link_matricula' => $link . '&ir=matricula',
   ];
+
+  // Registro da instituicao parceira que certifica. So entra quando existe:
+  // curso livre nao tem parceira, e mandar o campo vazio faria o atendimento
+  // achar que a informacao sumiu -- em vez de entender que ali ela nao se aplica.
+  if (($c['codigoMec'] ?? '') !== '') $dados['codigo_registro'] = $c['codigoMec'];
+
+  return $dados;
 }
 
 /**
