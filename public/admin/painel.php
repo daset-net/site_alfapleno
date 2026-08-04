@@ -143,7 +143,7 @@ require __DIR__ . '/_topo.php';
         </label>
         <label style="font-weight: normal; cursor: pointer;">
           <input type="radio" name="valor_hero_formato" value="transparente" <?= $heroFormato === 'transparente' ? 'checked' : '' ?>>
-          Recorte Transparente (Sem máscara, igual Eduset)
+          Recorte Transparente (Sem máscara)
         </label>
       </div>
       <small>Escolha o estilo visual para integrar a imagem ao fundo azul do site.</small>
