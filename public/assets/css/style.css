@@ -376,8 +376,14 @@ ul { list-style: none; }
   filter: drop-shadow(0 24px 45px rgba(0,0,0,.35));
 }
 .hero__media img:not(.hero__media-logo) {
-  /* Efeito de card (Cantos arredondados sem cortar a imagem toda) */
+  /* Efeito de Dispersão Retangular (Bordas esfumaçadas suaves preservando o formato quadrado) */
   border-radius: 24px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%),
+                      linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%),
+              linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-composite: intersect;
 }
 .hero__media--vazio .hero__media-logo {
   width: 74%;
