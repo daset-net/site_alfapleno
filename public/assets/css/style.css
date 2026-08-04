@@ -375,8 +375,8 @@ ul { list-style: none; }
   object-fit: contain;
   filter: drop-shadow(0 24px 45px rgba(0,0,0,.35));
 }
-.hero__media img:not(.hero__media-logo) {
-  /* Efeito de Dispersão Retangular (Bordas esfumaçadas suaves preservando o formato quadrado) */
+/* Efeito Retangular (Card com bordas esfumaçadas) */
+.hero__media--retangular img:not(.hero__media-logo) {
   border-radius: 24px;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%),
                       linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
@@ -384,6 +384,12 @@ ul { list-style: none; }
   mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%),
               linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
   mask-composite: intersect;
+}
+
+/* Efeito Circular (Redondo, clássico) */
+.hero__media--circular img:not(.hero__media-logo) {
+  -webkit-mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
 }
 .hero__media--vazio .hero__media-logo {
   width: 74%;
