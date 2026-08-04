@@ -139,11 +139,11 @@ require __DIR__ . '/_topo.php';
       <div class="radio-group" style="display: flex; gap: 2rem; margin-top: 0.5rem;">
         <label style="font-weight: normal; cursor: pointer;">
           <input type="radio" name="valor_hero_formato" value="retangular" <?= $heroFormato === 'retangular' ? 'checked' : '' ?>>
-          Retangular (Cantos arredondados)
+          Retangular (Cantos arredondados e esfumaçados)
         </label>
         <label style="font-weight: normal; cursor: pointer;">
-          <input type="radio" name="valor_hero_formato" value="circular" <?= $heroFormato === 'circular' ? 'checked' : '' ?>>
-          Circular (Redonda e esfumaçada)
+          <input type="radio" name="valor_hero_formato" value="transparente" <?= $heroFormato === 'transparente' ? 'checked' : '' ?>>
+          Recorte Transparente (Sem máscara, igual Eduset)
         </label>
       </div>
       <small>Escolha o estilo visual para integrar a imagem ao fundo azul do site.</small>

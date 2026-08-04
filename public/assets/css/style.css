@@ -386,10 +386,9 @@ ul { list-style: none; }
   mask-composite: intersect;
 }
 
-/* Efeito Circular (Redondo, clássico) */
-.hero__media--circular img:not(.hero__media-logo) {
-  -webkit-mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
+/* Efeito Transparente (Sem máscara, mantém a imagem original como no Eduset) */
+.hero__media--transparente img:not(.hero__media-logo) {
+  /* Nenhuma máscara é aplicada, a imagem flutua naturalmente com o drop-shadow padrão */
 }
 .hero__media--vazio .hero__media-logo {
   width: 74%;
