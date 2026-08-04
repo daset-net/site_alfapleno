@@ -376,9 +376,8 @@ ul { list-style: none; }
   filter: drop-shadow(0 24px 45px rgba(0,0,0,.35));
 }
 .hero__media img:not(.hero__media-logo) {
-  /* Efeito de integração (Máscara de Camada com Transição Suave) */
-  -webkit-mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
+  /* Efeito de card (Cantos arredondados sem cortar a imagem toda) */
+  border-radius: 24px;
 }
 .hero__media--vazio .hero__media-logo {
   width: 74%;

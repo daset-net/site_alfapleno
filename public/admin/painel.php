@@ -97,7 +97,7 @@ require __DIR__ . '/_topo.php';
   </div>
   <div class="hero-editor__acoes">
     <h2>Imagem do topo (hero)</h2>
-    <p>Aparece à direita no topo da home. Agora com <strong>efeito de Máscara de Camada (transição suave)</strong>! Você pode enviar uma arte digital quadrada (JPG/PNG) ou foto, e as bordas dela irão sumir gradualmente para se misturar perfeitamente com o fundo azul do site. Sem imagem, mostra a logo da ALFAPLENO.</p>
+    <p>Aparece à direita no topo da home. Agora com <strong>Cantos Arredondados (estilo card)</strong>! Você pode enviar uma arte digital (JPG/PNG) ou foto (como essa de Dia dos Pais) e ela vai ganhar cantos arredondados e uma sombra elegante para se destacar sobre o fundo azul do site. Sem imagem, mostra a logo da ALFAPLENO.</p>
     <div class="hero-editor__botoes">
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
