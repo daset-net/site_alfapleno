@@ -104,7 +104,11 @@ require __DIR__ . '/_topo.php';
   </div>
   <div class="hero-editor__acoes">
     <h2>Imagem do topo (hero)</h2>
-    <p>Aparece à direita no topo da home. Agora com <strong>Cantos Arredondados (estilo card)</strong>! Você pode enviar uma arte digital (JPG/PNG) ou foto (como essa de Dia dos Pais) e ela vai ganhar cantos arredondados e uma sombra elegante para se destacar sobre o fundo azul do site. Sem imagem, mostra a logo da ALFAPLENO.</p>
+    <?php if ($heroFormato === 'retangular'): ?>
+      <p>Aparece à direita no topo da home. Atualmente configurada com <strong>Cantos Arredondados (estilo card)</strong>. Você pode enviar uma arte digital (JPG/PNG) ou foto e ela vai ganhar bordas suaves e sombra elegante para se destacar. Sem imagem, mostra a logo.</p>
+    <?php else: ?>
+      <p>Aparece à direita no topo da home. Atualmente configurada como <strong>Recorte Transparente</strong>. O ideal é enviar um PNG com fundo transparente (um recorte de pessoa ou objeto) para ele flutuar sobre o azul do topo. Sem imagem, mostra a logo.</p>
+    <?php endif; ?>
     <div class="hero-editor__botoes">
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="csrf" value="<?= e(csrf()) ?>">
