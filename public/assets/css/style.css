@@ -375,6 +375,11 @@ ul { list-style: none; }
   object-fit: contain;
   filter: drop-shadow(0 24px 45px rgba(0,0,0,.35));
 }
+.hero__media img:not(.hero__media-logo) {
+  /* Efeito de integração (Máscara de Camada com Transição Suave) */
+  -webkit-mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, black 60%, transparent 100%);
+}
 .hero__media--vazio .hero__media-logo {
   width: 74%;
   animation: float 6s ease-in-out infinite;
