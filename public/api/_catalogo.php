@@ -39,10 +39,11 @@ $EMOJIS = [
 ];
 
 $CATEGORIAS = [
-  'EJA'          => ['eja', 'Supletivo EJA'],
-  'TECNICO'      => ['tecnico', 'Curso Técnico'],
-  'INFORMATICA'  => ['livre', 'Curso Livre'],
-  'PROFISSIONAL' => ['livre', 'Curso Livre'],
+  'EJA'                     => ['eja', 'Supletivo EJA'],
+  'TECNICO'                 => ['tecnico', 'Curso Técnico'],
+  'TECNICO POR COMPETENCIA' => ['tecnico-competencia', 'Técnico Competência'],
+  'INFORMATICA'             => ['livre', 'Curso Livre'],
+  'PROFISSIONAL'            => ['livre', 'Curso Livre'],
 ];
 
 // ---------------------------------------------------------------- config
@@ -825,7 +826,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   // Categoria do curso → [slug, rótulo]. Categoria desconhecida cai em "Curso Livre",
   // para que nenhum curso do catálogo fique de fora do site.
   $categoriaDe = function (?string $cat) use ($CATEGORIAS): array {
-    return $CATEGORIAS[strtoupper((string) $cat)] ?? ['livre', 'Curso Livre'];
+    return $CATEGORIAS[strtoupper(semAcento((string) $cat))] ?? ['livre', 'Curso Livre'];
   };
 
   $site = [];
@@ -846,7 +847,8 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     $s = $site[$id] ?? null;
     if ($s && !($s['ativo'] ?? true)) continue;      // oculto pelo painel do site
 
-    $versoes[$id][] = $l;
+    [$categoriaSlug] = $categoriaDe($l['categoria'] ?? '');
+    $versoes[$id . '|' . $categoriaSlug][] = $l;
   }
 
   $melhores = [];
@@ -855,7 +857,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     if ($escolhida) $melhores[$id] = $escolhida;
   }
 
-  $peso = ['eja' => 1, 'tecnico' => 2, 'livre' => 3];
+  $peso = ['eja' => 1, 'tecnico' => 2, 'tecnico-competencia' => 3, 'livre' => 4];
   uasort($melhores, function ($a, $b) use ($categoriaDe, $peso, $site) {
     $ca = $peso[$categoriaDe($a['categoria'] ?? '')[0]];
     $cb = $peso[$categoriaDe($b['categoria'] ?? '')[0]];
@@ -869,14 +871,17 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   $cursos = [];
   $i = 0;
 
-  foreach ($melhores as $id => $l) {
+  foreach ($melhores as $l) {
+    $id = (string) ($l['id_curso'] ?? '');
     [$slug, $rotulo] = $categoriaDe($l['categoria'] ?? '');
+    $competencia = $slug === 'tecnico-competencia';
     $s        = $site[$id] ?? [];
     $parcelas = (int) ($l['qtd_parcela'] ?? 0);
     $nome     = trim($s['nome_exibicao'] ?? '') !== '' ? $s['nome_exibicao'] : nomeCurso($l['curso'] ?? '');
 
     $cursos[] = [
-      'id'             => $id,
+      'id'             => $competencia ? $id . 'COMP' : $id,
+      'idCatalogo'     => $id,
       'categoria'      => $slug,
       'categoriaLabel' => $rotulo,
       'nome'           => $nome,
@@ -887,18 +892,20 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       // de no lugar dele porque os dois são o mesmo curso escrito de dois
       // jeitos, e a busca tem de achar pelos dois.
       'nomeBusca'      => trim((string) ($l['curso_normalizado'] ?? '')),
-      'slug'           => $s['slug'] ?? '',
+      'slug'           => $competencia && !empty($s['slug']) ? $s['slug'] . '-competencia' : ($s['slug'] ?? ''),
       'emoji'          => trim($s['emoji'] ?? '') !== '' ? $s['emoji'] : emojiDe($nome, $EMOJIS),
       'imagem'         => urlImagem($s['imagem_capa'] ?? null),
-      'descricao'      => trim($s['descricao_card'] ?? '') !== ''
+      'descricao'      => !$competencia && trim($s['descricao_card'] ?? '') !== ''
                             ? $s['descricao_card']
-                            : 'Curso com certificação reconhecida e material 100% online.',
+                            : ($competencia
+                                ? 'Certificação por competência com provas online em cada módulo.'
+                                : 'Curso com certificação reconhecida e material 100% online.'),
       'duracao'        => trim($s['duracao'] ?? '') !== ''
                             ? $s['duracao']
                             : ($parcelas > 0 ? $parcelas . ' meses' : 'Flexível'),
-      'modalidade'     => trim($s['modalidade'] ?? '') !== ''
+      'modalidade'     => !$competencia && trim($s['modalidade'] ?? '') !== ''
                             ? $s['modalidade']
-                            : 'EAD com Polo Digital',
+                            : ($competencia ? 'Avaliação por Competência' : 'EAD com Polo Digital'),
 
       // preço — sempre do ava_catalogo_curso
       'preco'          => moeda($l['valor_parcela']),
@@ -1006,11 +1013,21 @@ function catalogo(): array {
 function planoVigente(string $idCurso): ?array {
   if ($idCurso === '') return null;
 
+  $competencia = str_ends_with($idCurso, 'COMP');
+  $idCatalogo  = $competencia ? substr($idCurso, 0, -4) : $idCurso;
+
   $linhas = buscarColecao(COL_PRECOS, [
-    'filter' => ['id_curso' => ['_eq' => $idCurso]],
-    'fields' => 'id_curso,curso,categoria,id_unico,ingresso,desconto,qtd_parcela,'
+    'filter' => ['id_curso' => ['_eq' => $idCatalogo]],
+    'fields' => 'id_curso,curso,categoria,id_unico,codigo_unico_especial,ingresso,desconto,qtd_parcela,'
               . 'valor_parcela,valor_parcela_normal,valor_total,valor_total_normal,ativo',
   ]);
+  if (!$linhas) return null;
+
+  $linhas = array_values(array_filter($linhas, function ($linha) use ($competencia) {
+    $categoria = strtoupper(semAcento((string) ($linha['categoria'] ?? '')));
+    $daCompetencia = $categoria === 'TECNICO POR COMPETENCIA' || $categoria === 'COMPETENCIA';
+    return $competencia === $daCompetencia;
+  }));
   if (!$linhas) return null;
 
   return ofertaDoCiclo($linhas);
@@ -1332,7 +1349,7 @@ function materiasDoCurso(array $curso): array {
   $grades = gradesPorCurso();
 
   // Caminho normal: mesmo id nas duas tabelas, confirmado pelo nome.
-  $grade = $grades[strtoupper($curso['id'])] ?? null;
+  $grade = $grades[strtoupper($curso['idCatalogo'] ?? $curso['id'])] ?? null;
   if ($grade && mesmoCurso($curso['nome'], $grade['nome'])) {
     return respeitarCargaMinima($grade['materias'], $curso);
   }
@@ -1353,6 +1370,7 @@ function cargaMinima(array $curso): int {
 
   $padrao = [
     'tecnico' => (int) config('carga_minima_tecnico', '1200'),
+    'tecnico-competencia' => (int) config('carga_minima_tecnico', '1200'),
     'eja'     => (int) config('carga_minima_eja', '1200'),
     'livre'   => (int) config('carga_minima_livre', '0'),
   ];
