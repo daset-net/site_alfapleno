@@ -22,7 +22,7 @@ const COL_UNIDADES   = 'tabela_unidades';     // polos, para o link de divulgaç
 const COL_DEPOIMENTOS = 'site_alunos_depoimentos'; // depoimentos de alunos, por curso
 
 const CACHE_TTL    = 600; // segundos
-const CACHE_CATALOGO = 'catalogo_pagamento_competencia_v1';
+const CACHE_CATALOGO = 'catalogo_pagamento_competencia_profissionalizantes_v2';
 const HTTP_TIMEOUT = 8;
 
 const COR_NAVY  = 'linear-gradient(140deg,#03123f,#0a3178)';
@@ -43,8 +43,8 @@ $CATEGORIAS = [
   'EJA'                     => ['eja', 'Supletivo EJA'],
   'TECNICO'                 => ['tecnico', 'Curso Técnico'],
   'TECNICO POR COMPETENCIA' => ['tecnico-competencia', 'Técnico Competência'],
-  'INFORMATICA'             => ['livre', 'Curso Livre'],
-  'PROFISSIONAL'            => ['livre', 'Curso Livre'],
+  'INFORMATICA'             => ['profissionalizante', 'Profissionalizantes'],
+  'PROFISSIONAL'            => ['profissionalizante', 'Profissionalizantes'],
 ];
 
 // ---------------------------------------------------------------- config
@@ -824,10 +824,10 @@ function ofertaDoCiclo(array $versoes): ?array {
 function montarCatalogo(array $precos, array $editorial, array $ctx): array {
   extract($ctx); // $EMOJIS, $CATEGORIAS
 
-  // Categoria do curso → [slug, rótulo]. Categoria desconhecida cai em "Curso Livre",
+  // Categoria do curso → [slug, rótulo]. Categoria desconhecida cai em "Profissionalizantes",
   // para que nenhum curso do catálogo fique de fora do site.
   $categoriaDe = function (?string $cat) use ($CATEGORIAS): array {
-    return $CATEGORIAS[strtoupper(semAcento((string) $cat))] ?? ['livre', 'Curso Livre'];
+    return $CATEGORIAS[strtoupper(semAcento((string) $cat))] ?? ['profissionalizante', 'Profissionalizantes'];
   };
   $idEditorialDe = function (string $id, string $categoriaSlug): string {
     return $categoriaSlug === 'tecnico-competencia' && preg_match('/^CTC(\d+)$/', $id, $m)
@@ -863,7 +863,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
     if ($escolhida) $melhores[$id] = $escolhida;
   }
 
-  $peso = ['eja' => 1, 'tecnico' => 2, 'tecnico-competencia' => 3, 'livre' => 4];
+  $peso = ['eja' => 1, 'tecnico' => 2, 'tecnico-competencia' => 3, 'profissionalizante' => 4];
   uasort($melhores, function ($a, $b) use ($categoriaDe, $idEditorialDe, $peso, $site) {
     $ca = $peso[$categoriaDe($a['categoria'] ?? '')[0]];
     $cb = $peso[$categoriaDe($b['categoria'] ?? '')[0]];
@@ -953,7 +953,7 @@ function montarCatalogo(array $precos, array $editorial, array $ctx): array {
       // Codigo da instituicao parceira que certifica (SISTEC para tecnico, INEP
       // para EJA). A ficha do site manda, porque e ela que a secretaria edita;
       // o catalogo do AVA e a reserva para o curso que ainda nao tem ficha.
-      // Curso livre nao tem parceira e fica com string vazia.
+      // Curso profissionalizante não tem parceira e fica com string vazia.
       'codigoMec'      => trim((string) ($s['codigo_mec_parceiro'] ?? '')) !== ''
                             ? trim((string) $s['codigo_mec_parceiro'])
                             : trim((string) ($l['codigo_mec_parceiro'] ?? '')),
@@ -1203,7 +1203,7 @@ function poolDepoimentosHome(array $cursos): array {
   ]);
   if ($linhas === null) return cacheDepoimentos($cache, true) ?? [];
 
-  $pool = ['eja' => [], 'tecnico' => [], 'livre' => []];
+  $pool = ['eja' => [], 'tecnico' => [], 'profissionalizante' => []];
   foreach (normalizarDepoimentos($linhas) as $d) {
     $curso = $modalidadePorCurso[$d['idCurso']] ?? null;
     if (!$curso || !isset($pool[$curso['slug']])) continue;   // curso que o site não exibe
@@ -1223,7 +1223,7 @@ function depoimentosDestaque(array $cursos): array {
   $pool  = poolDepoimentosHome($cursos);
   $saida = [];
 
-  foreach (['eja', 'tecnico', 'livre'] as $slug) {
+  foreach (['eja', 'tecnico', 'profissionalizante'] as $slug) {
     $daModalidade = $pool[$slug] ?? [];
     if ($daModalidade) $saida[] = $daModalidade[array_rand($daModalidade)];
   }
@@ -1401,6 +1401,29 @@ function materiasDoCurso(array $curso): array {
   return [];
 }
 
+/** Metadados legais usados no verso do certificado profissionalizante. */
+function metadadosCertificadoProfissionalizante(array $curso): ?array {
+  if (($curso['categoria'] ?? '') !== 'profissionalizante') return null;
+
+  $nome = trim((string) ($curso['nome'] ?? ''));
+  $materias = materiasDoCurso($curso);
+  $horas = array_sum(array_column($materias, 'horas'));
+  if ($horas <= 0) $horas = cargaMinima($curso);
+
+  $texto = "O {$nome} da Alfa Pleno é uma formação desenvolvida em total conformidade com as diretrizes federais da Educação Profissional e Tecnológica (EPT), amparado pela Portaria CNE/CP nº 1, de 5 de janeiro de 2021 (MEC), e respaldado pelo Decreto Federal nº 5.154, de 23 de julho de 2004. Esta formação enquadra-se na modalidade de Formação Inicial e Continuada (FIC), sendo autorizada e registrada sob a Resolução de Diretoria / ALFA PLENO nº 1042/2026 (Qualificação Profissional Básica em {$nome} EAD).\n\n"
+         . "• Curso: {$nome}\n"
+         . "• Modalidade: Educação a Distância (EAD)\n"
+         . '• Carga Horária: ' . ($horas > 0 ? $horas : '[X]') . ' horas';
+
+  return [
+    'curso' => $nome,
+    'modalidade' => 'Educação a Distância (EAD)',
+    'carga_horaria' => $horas > 0 ? $horas : null,
+    'resolucao' => 'Resolução de Diretoria / ALFA PLENO nº 1042/2026',
+    'texto_verso' => $texto,
+  ];
+}
+
 /** Carga mínima do curso: a da ficha ou, sem ela, o padrão da modalidade. */
 function cargaMinima(array $curso): int {
   if (!empty($curso['cargaMinima'])) return (int) $curso['cargaMinima'];
@@ -1409,7 +1432,7 @@ function cargaMinima(array $curso): int {
     'tecnico' => (int) config('carga_minima_tecnico', '1200'),
     'tecnico-competencia' => (int) config('carga_minima_tecnico', '1200'),
     'eja'     => (int) config('carga_minima_eja', '1200'),
-    'livre'   => (int) config('carga_minima_livre', '0'),
+    'profissionalizante'   => (int) config('carga_minima_profissionalizante', config('carga_minima_livre', '0')),
   ];
   return $padrao[$curso['categoria']] ?? 0;
 }
@@ -1424,7 +1447,7 @@ function cargaMinima(array $curso): int {
  *
  * Assim a proporção entre as matérias continua sendo a do conteúdo real, o total
  * bate com a soma da lista e nenhum curso anuncia carga diferente da que
- * certifica. Curso sem mínimo definido (os livres) mostra a soma real.
+ * certifica. Curso sem mínimo definido (os profissionalizantes) mostra a soma real.
  */
 function respeitarCargaMinima(array $materias, array $curso): array {
   $minima = cargaMinima($curso);
