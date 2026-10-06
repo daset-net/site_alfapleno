@@ -48,6 +48,17 @@ $CATEGORIAS = [
 ];
 
 // ---------------------------------------------------------------- config
+// Endereço público do site, sem barra no fim. Base de toda URL absoluta que sai
+// para fora (canonical, og:image, sitemap.xml, llms.txt): o Google e as IAs
+// precisam do endereço completo, e o site responde só sem "www".
+const SITE_URL  = 'https://alfapleno.com.br';
+const SITE_NOME = 'ALFAPLENO';
+
+function urlAbsoluta(string $caminho = '/'): string {
+  if (preg_match('#^https?://#i', $caminho)) return $caminho;
+  return SITE_URL . '/' . ltrim($caminho, '/');
+}
+
 function conexao(string $chave, string $padrao = ''): string {
   // Nomes equivalentes: o padrão dos outros sistemas ALFAPLENO (usado no EasyPanel)
   // e os nomes curtos deste projeto. Tenta ambos, em variável de ambiente e arquivo.
